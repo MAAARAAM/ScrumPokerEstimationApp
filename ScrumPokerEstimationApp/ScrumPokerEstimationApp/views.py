@@ -2,6 +2,7 @@ import json
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.utils import timezone
+from django.db import IntegrityError
 from .models import Partie, Joueur
 import uuid
 
@@ -12,6 +13,11 @@ def lancer_partie(request):
     if request.method == 'POST':
         nb_joueurs = int(request.POST['nb_joueurs'])
         pseudos = [request.POST[f'joueur_{i+1}'] for i in range(nb_joueurs)]
+
+        # Vérifier que les pseudos sont uniques
+        if len(pseudos) != len(set(pseudos)):
+            return JsonResponse({'error': 'Les pseudos des joueurs doivent être uniques.'}, status=400)
+
         mode = request.POST['mode']
 
         # Récupérer la description de la tâche unique
@@ -63,30 +69,43 @@ def rejoindre_partie(request):
 
 def partie(request, code):
     partie = Partie.objects.get(code=code)
-    tache_actuelle = partie.backlog[partie.active_task]
-
+    
+    # Assurez-vous que active_task est un index dans le backlog
+    if partie.active_task < len(partie.backlog):
+        tache_actuelle = partie.backlog[partie.active_task]
+        tache_description = tache_actuelle['description']
+    else:
+        tache_description = "Aucune tâche actuelle"
+    
     if request.method == 'POST':
         joueur = Joueur.objects.get(pseudo=request.POST['pseudo'])
         joueur.vote = request.POST['vote']
         joueur.save()
 
-        if all(j.vote for j in partie.joueurs.all()):
-            votes = [int(j.vote) for j in partie.joueurs.all()]
+        # Vérifiez si tous les joueurs ont voté
+        if all(joueur.vote for joueur in partie.joueurs.all()):
+            votes = [int(joueur.vote) for joueur in partie.joueurs.all()]
             if partie.mode == 'strict':
+                # Si tous les votes sont identiques, on applique le vote à la tâche
                 if len(set(votes)) == 1:
                     partie.etat_avancement[str(partie.active_task)] = votes[0]
                     partie.active_task += 1
             elif partie.mode == 'moyenne':
+                # Calcul de la moyenne des votes
                 partie.etat_avancement[str(partie.active_task)] = sum(votes) / len(votes)
                 partie.active_task += 1
 
+            # Vérification si le backlog est terminé
             if partie.active_task == len(partie.backlog):
+                # Sauvegarder le résultat dans un fichier
                 with open('resultat.json', 'w') as f:
                     json.dump(partie.etat_avancement, f)
                 return JsonResponse({'message': 'Backlog terminé !'})
 
+            # Réinitialiser les votes des joueurs pour la tâche suivante
             for joueur in partie.joueurs.all():
                 joueur.vote = None
                 joueur.save()
 
-    return render(request, 'partie.html', {'partie': partie, 'tache_actuelle': tache_actuelle})
+    return render(request, 'partie.html', {'partie': partie, 'tache_actuelle': tache_description})
+
