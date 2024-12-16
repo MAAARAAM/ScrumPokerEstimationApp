@@ -2,7 +2,6 @@ from django.db import models
 import random
 import string
 
-# Définir les modes de jeu en tant que constantes
 MODE_CHOICES = [
     ('strict', 'Unanimité'),
     ('moyenne', 'Moyenne'),

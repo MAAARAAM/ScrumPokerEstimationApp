@@ -1,18 +1,17 @@
-<form method="POST">
-    {% csrf_token %}
-    <label for="nb_joueurs">Nombre de joueurs:</label>
-    <input type="number" id="nb_joueurs" name="nb_joueurs" required>
-    <div id="joueurs"></div>
-    <label for="tache">Décrivez la tâche:</label>
-    <input type="text" id="tache" name="tache" required>
-    <label for="mode">Choisissez le mode de jeu:</label>
-    <select id="mode" name="mode" required>
-      <option value="strict">Strict</option>
-      <option value="moyenne">Moyenne</option>
-      <option value="mediane">Médiane</option>
-      <option value="majorite_absolue">Majorité absolue</option>
-      <option value="majorite_relative">Majorité relative</option>
-    </select>
-    <button type="submit">Lancer la partie</button>
-  </form>
-  
+<form method="POST" action="{% url 'lancer_partie' %}">
+  {% csrf_token %}
+  <label for="nb_joueurs">Nombre de joueurs:</label>
+  <input type="number" id="nb_joueurs" name="nb_joueurs" required>
+  <div id="joueurs"></div>
+  <label for="tache">Décrivez la tâche:</label>
+  <input type="text" id="tache" name="tache" required>
+  <label for="mode">Choisissez le mode de jeu:</label>
+  <select id="mode" name="mode" required>
+    <option value="strict">Strict</option>
+    <option value="moyenne">Moyenne</option>
+    <option value="mediane">Médiane</option>
+    <option value="majorite_absolue">Majorité absolue</option>
+    <option value="majorite_relative">Majorité relative</option>
+  </select>
+  <button type="submit">Lancer la partie</button>
+</form>

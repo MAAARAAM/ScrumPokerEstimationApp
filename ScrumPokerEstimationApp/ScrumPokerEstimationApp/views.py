@@ -54,3 +54,15 @@ def demarrer_voting(request, code_partie):
         return JsonResponse({'message': f"Le vote a commencé pour la tâche: {partie.tache}"})
     except Partie.DoesNotExist:
         return JsonResponse({'message': 'Partie non trouvée.'})
+
+def partie(request):
+    nb_joueurs = request.session.get('nb_joueurs')
+    tache = request.session.get('tache')
+    mode = request.session.get('mode')
+    
+    # Transmettez les données à la page partie.html
+    return render(request, 'partie.html', {
+        'nb_joueurs': nb_joueurs,
+        'tache': tache,
+        'mode': mode
+    })
