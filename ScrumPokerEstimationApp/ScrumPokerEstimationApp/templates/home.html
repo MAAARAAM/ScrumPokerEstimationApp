@@ -1,17 +1,14 @@
-<!-- home.html -->
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scrum Poker Estimation</title>
+    <title>Accueil</title>
 </head>
 <body>
-    <h1>Welcome to Scrum Poker Estimation</h1>
-    <p>Choose an option:</p>
-    <ul>
-        <li><a href="{% url 'lancer_partie' %}">Start a New Game</a></li>
-        <li><a href="{% url 'rejoindre_partie' %}">Join an Existing Game</a></li>
-    </ul>
+    <h1>Bienvenue sur le Planning Poker</h1>
+
+    <p><a href="{% url 'lancer_partie' %}">Lancer une nouvelle partie</a></p>
+    <p><a href="{% url 'rejoindre_partie' %}">Rejoindre une partie existante</a></p>
 </body>
 </html>

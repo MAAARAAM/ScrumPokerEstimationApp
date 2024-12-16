@@ -1,16 +1,55 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Planning Poker - Partie</title>
+    <title>Partie - {{ partie.code }}</title>
 </head>
 <body>
-    <h1>Planning Poker - Partie en cours</h1>
-    <p>Nombre de joueurs : {{ nb_joueurs }}</p>
-    <p>Tâche à estimer : {{ tache }}</p>
-    <p>Mode de jeu sélectionné : {{ mode }}</p>
-    <hr>
-    <p>Les joueurs peuvent maintenant commencer à voter.</p>
+    <h1>Partie {{ partie.code }}</h1>
+
+    <h2>Tâche actuelle :</h2>
+    <p>{{ tache_actuelle }}</p>
+
+    <h3>Votes :</h3>
+    <form method="POST">
+        {% csrf_token %}
+        
+        <label for="pseudo">Votre pseudo :</label>
+        <select id="pseudo" name="pseudo" required>
+            {% for joueur in partie.joueurs.all %}
+                <option value="{{ joueur.pseudo }}">{{ joueur.pseudo }}</option>
+            {% endfor %}
+        </select><br>
+
+        <label for="vote">Votre vote :</label>
+        <select id="vote" name="vote" required>
+            <option value="0">0</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="5">5</option>
+            <option value="8">8</option>
+            <option value="13">13</option>
+            <option value="20">20</option>
+            <option value="40">40</option>
+            <option value="100">100</option>
+            <option value="Café">Café</option>
+            <option value="?">?</option>
+        </select><br>
+
+        <button type="submit">Voter</button>
+    </form>
+
+    <h3>État actuel du backlog :</h3>
+    <ul>
+        {% for task, value in partie.etat_avancement.items %}
+            <li>Tâche {{ task }} : {{ value }}</li>
+        {% endfor %}
+    </ul>
+
+    {% if partie.active_task == partie.backlog|length %}
+        <p>Le backlog est terminé !</p>
+    {% endif %}
 </body>
 </html>
