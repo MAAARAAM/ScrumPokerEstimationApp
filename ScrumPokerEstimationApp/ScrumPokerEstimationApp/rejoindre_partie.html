@@ -1,0 +1,10 @@
+<form method="POST">
+    {% csrf_token %}
+    <label for="code_partie">Entrez le code de la partie:</label>
+    <input type="text" id="code_partie" name="code_partie" required>
+    <label for="pseudo">Entrez votre pseudo:</label>
+    <input type="text" id="pseudo" name="pseudo" required>
+    <button type="submit">Rejoindre</button>
+  </form>
+
+  
