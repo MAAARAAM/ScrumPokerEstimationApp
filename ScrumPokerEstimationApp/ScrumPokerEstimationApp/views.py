@@ -1,7 +1,9 @@
+import json
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
+from django.utils import timezone
 from .models import Partie, Joueur
-import json
+import uuid
 
 def home(request):
     return render(request, 'home.html')
@@ -10,19 +12,34 @@ def lancer_partie(request):
     if request.method == 'POST':
         nb_joueurs = int(request.POST['nb_joueurs'])
         pseudos = [request.POST[f'joueur_{i+1}'] for i in range(nb_joueurs)]
-        backlog = json.loads(request.POST['backlog'])
         mode = request.POST['mode']
+
+        # Récupérer la description de la tâche unique
+        task_description = request.POST.get('task_1')  # Une seule tâche
+        if not task_description:
+            return JsonResponse({'error': 'Veuillez décrire la tâche à estimer.'}, status=400)
+
+        # Créer le backlog avec la seule tâche
+        backlog = [
+            {
+                "id": str(uuid.uuid4()),  # Identifiant unique pour la tâche
+                "description": task_description,
+                "date_created": timezone.now().isoformat()  # Date de création
+            }
+        ]
 
         # Créer les joueurs
         joueurs = [Joueur.objects.create(pseudo=pseudo) for pseudo in pseudos]
 
-        # Créer la partie
+        # Créer la partie avec le backlog
         partie = Partie.objects.create(code="12345", mode=mode, backlog=backlog)
         partie.joueurs.set(joueurs)
         partie.save()
 
         return redirect('partie', code=partie.code)
+
     return render(request, 'lancer_partie.html')
+
 
 def rejoindre_partie(request):
     if request.method == 'POST':

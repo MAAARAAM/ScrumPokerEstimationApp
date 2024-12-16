@@ -25,16 +25,20 @@
             <option value="moyenne">Mode Moyenne</option>
         </select><br>
 
-        <label for="backlog">Backlog (JSON) :</label>
-        <textarea id="backlog" name="backlog" rows="4" cols="50" required></textarea><br>
+        <div id="backlog-tasks">
+            <h3>Tâches du backlog :</h3>
+            <label for="task_1">Tâche 1 :</label>
+            <input type="text" id="task_1" name="task_1" required><br>
+        </div>
 
         <button type="submit">Lancer la partie</button>
     </form>
 
     <script>
-        // Ajouter dynamiquement les champs pour les joueurs en fonction du nombre de joueurs
+        // Ajouter dynamiquement les champs pour les tâches en fonction du nombre de tâches à ajouter
         const nbJoueursInput = document.getElementById('nb_joueurs');
         const joueursDiv = document.getElementById('joueurs');
+        const backlogDiv = document.getElementById('backlog-tasks');
 
         nbJoueursInput.addEventListener('input', function() {
             const nbJoueurs = parseInt(nbJoueursInput.value);
@@ -56,6 +60,25 @@
                 joueursDiv.appendChild(document.createElement('br'));
             }
         });
+
+        // Ajouter dynamiquement les champs de tâches (backlog)
+        let taskCount = 1;
+        function addTaskField() {
+            taskCount++;
+            const label = document.createElement('label');
+            label.setAttribute('for', 'task_' + taskCount);
+            label.innerHTML = 'Tâche ' + taskCount + ' : ';
+
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.id = 'task_' + taskCount;
+            input.name = 'task_' + taskCount;
+            input.required = true;
+
+            backlogDiv.appendChild(label);
+            backlogDiv.appendChild(input);
+            backlogDiv.appendChild(document.createElement('br'));
+        }
     </script>
 </body>
 </html>
