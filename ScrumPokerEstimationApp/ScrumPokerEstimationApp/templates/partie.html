@@ -7,7 +7,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Partie - {{ partie.code }}</title>
     <style>
-        /* Centrer tout le contenu de la page */
         body {
             font-family: Arial, sans-serif;
             display: flex;
@@ -18,58 +17,39 @@
             margin: 0;
             padding: 20px;
             min-height: 100vh;
-            gap: 10px; /* Réduit l'espace entre les éléments de la page */
+            gap: 10px;
         }
 
         h1, h2, h3 {
-            margin: 10px 0; /* Espaces réduits entre les titres */
+            margin: 10px 0;
         }
 
-        /* Formulaire de vote */
-        form {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            max-width: 800px;
-            gap: 10px; /* Réduit l'espace entre les éléments du formulaire */
-        }
-
-        /* Disposition des cartes de vote */
         .vote-cards {
             display: grid;
-            grid-template-columns: repeat(5, 1fr); /* 5 cartes par ligne */
-            gap: 10px; /* Réduit l'espace entre les cartes */
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
             justify-items: center;
         }
 
         .vote-card img {
             width: 100px;
             height: 100px;
-            object-fit: contain;
             cursor: pointer;
-            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out, filter 0.2s ease-in-out, background-color 0.2s ease-in-out; /* Ajout d'une transition pour le flou et la couleur de fond */
-            background-color: transparent; /* Fond initial transparent */
-            border-radius: 8px; /* Bords arrondis pour un meilleur rendu visuel */
-        }
-        
-        /* Effet hover sur les cartes */
-        .vote-card img:hover {
-            transform: scale(1.1); /* Agrandir légèrement l'image */
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3); /* Ajouter une ombre */
-        }
-        
-        /* Effet lorsque la carte est cliquée (active) */
-        .vote-card img:active {
-            transform: scale(0.95); /* Réduire légèrement l'image pour simuler un clic */
-            box-shadow: 0 0 25px rgba(0, 0, 0, 0.5); /* Augmenter l'ombre pour l'effet de clic */
-            filter: blur(3px); /* Ajouter un flou à l'image lors du clic */
-            background-color: #007BFF; /* Changer la couleur de fond en bleu */
-            opacity: 0.8; /* Légèrement réduire l'opacité pour l'effet de clic */
+            border-radius: 8px;
+            transition: all 0.2s ease-in-out;
         }
 
-        /* Bouton */
+        .vote-card img:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .vote-card.selected img {
+            box-shadow: 0 0 15px rgba(0, 123, 255, 0.8);
+            border: 2px solid #007BFF;
+            transform: scale(1.05);
+        }
+
         button {
             padding: 8px 16px;
             background-color: #4CAF50;
@@ -77,26 +57,19 @@
             border: none;
             cursor: pointer;
             font-size: 14px;
+            border-radius: 5px;
         }
 
         button:hover {
             background-color: #45a049;
         }
-
-        /* Liste des tâches */
-        ul {
-            list-style-type: none;
-            padding: 0;
-            margin: 10px 0; /* Réduit l'espace entre la liste des tâches et les autres sections */
-        }
-
-        ul li {
-            margin: 3px 0; /* Réduit l'espace entre les éléments de la liste */
-        }
     </style>
 </head>
 <body>
     <h1>Partie {{ partie.code }}</h1>
+
+    <h3>Le vote est pour la tâche </h3>
+    <p id="tache-actuelle">{{ tache_actuelle }}</p>
 
     <!-- Liste des joueurs -->
     <h2>Joueurs</h2>
@@ -106,20 +79,10 @@
         {% endfor %}
     </ul>
 
-    <h2>Tâches</h2>
-    <p>
-        <ul>
-            {% for tache in partie.backlog %}
-                <li>{{ tache.description }}</li> 
-            {% endfor %}
-        </ul>
-    </p> 
-
-    <h3>Votes :</h3>
+    <!-- Section de vote -->
+    <h3>Votez pour une carte :</h3>
     <form method="POST" id="voteForm">
         {% csrf_token %}
-        
-        <h3>Votes :</h3>
         <div class="vote-cards">
             <div class="vote-card" data-value="0">
                 <img src="{% static 'cartes/cartes_0.svg' %}" alt="Carte 0">
@@ -157,13 +120,14 @@
             <div class="vote-card" data-value="?">
                 <img src="{% static 'cartes/cartes_interro.svg' %}" alt="Carte ?">
             </div>
-        </div><br>
+        </div>
 
         <input type="hidden" id="voteInput" name="vote" required>
 
         <button type="submit">Voter</button>
     </form>
 
+    <!-- État du backlog -->
     <h3>État actuel du backlog :</h3>
     <ul>
         {% for task, value in partie.etat_avancement.items %}
@@ -171,19 +135,21 @@
         {% endfor %}
     </ul>
 
-    {% if partie.active_task == partie.backlog|length %}
-        <p>Le backlog est terminé !</p>
-    {% endif %}
-
+    <!-- Script pour gérer le vote par clic -->
     <script>
-        // Ajout de l'événement click sur chaque carte pour sélectionner la valeur correspondante
         const voteCards = document.querySelectorAll('.vote-card');
         const voteInput = document.getElementById('voteInput');
 
         voteCards.forEach(card => {
-            card.addEventListener('click', function() {
+            card.addEventListener('click', () => {
+                // Retirer la sélection actuelle
+                voteCards.forEach(c => c.classList.remove('selected'));
+                // Ajouter la classe 'selected' pour mettre en valeur la carte cliquée
+                card.classList.add('selected');
+
+                // Enregistrer la valeur dans le champ caché
                 const value = card.getAttribute('data-value');
-                voteInput.value = value; // Associe la valeur de la carte au champ hidden
+                voteInput.value = value;
             });
         });
     </script>
