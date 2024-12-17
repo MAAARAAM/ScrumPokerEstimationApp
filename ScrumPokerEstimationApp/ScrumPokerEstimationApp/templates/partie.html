@@ -88,7 +88,13 @@
         </div>
     
         <input type="hidden" id="voteInput" name="vote" required>
-    
+
+        <h3>Votes actuels pour la tâche :</h3>
+        <ul>
+            {% for vote in tache_actuelle.votes %}
+                <li>{{ vote }}</li>
+            {% endfor %}
+        </ul> 
         <button type="submit">Voter</button>
     </form>
     

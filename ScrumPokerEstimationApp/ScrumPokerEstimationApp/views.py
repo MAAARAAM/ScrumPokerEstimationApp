@@ -120,32 +120,31 @@ def partie(request, code):
         vote = request.POST.get('vote')
 
         # Enregistrer le vote dans la partie
-        if partie.votes.get(partie.active_task) is None:
-            partie.votes[partie.active_task] = {}
+        if vote:
+            # Ajouter le vote dans la liste de votes pour la tâche actuelle
+            tache_actuelle['votes'].append(vote)
 
-        partie.votes[partie.active_task][joueur_en_cours.id] = vote
+        # Sauvegarder les changements dans la partie
         partie.save()
 
         # Passer au joueur suivant
         request.session['tour_joueur'] = (request.session['tour_joueur'] + 1) % len(joueurs)
 
         # Vérifier si tous les joueurs ont voté
-        votes_actuels = partie.votes[partie.active_task]
-        if len(votes_actuels) == len(joueurs):
-            if len(set(votes_actuels.values())) == 1:  # Si tous les votes sont égaux
+        if len(tache_actuelle['votes']) == len(joueurs):
+            if len(set(tache_actuelle['votes'])) == 1:  # Si tous les votes sont égaux
                 # Passer à la tâche suivante
                 partie.active_task += 1
                 partie.save()
 
                 # Réinitialiser les votes pour la tâche suivante
-                partie.votes[partie.active_task] = {}
+                tache_actuelle['votes'] = []
                 partie.save()
 
                 return redirect('partie', code=code)  # Recharger la page
 
         return redirect('partie', code=code)
 
-    # Affichage des informations pour la partie
     return render(request, 'partie.html', {
         'partie': partie,
         'tache_actuelle': tache_actuelle['description'],
