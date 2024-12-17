@@ -6,13 +6,12 @@
     <title>Partie - {{ partie.code }}</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'styles/partie.css' %}">
-
+   
 </head>
 <body>
     <h1>Partie {{ partie.code }}</h1>
 
     <div class="container">
-        <!-- Liste des joueurs (à droite) -->
         <div class="joueurs-container">
             <h2>Joueurs</h2>
             <ul>
@@ -22,7 +21,6 @@
             </ul>
         </div>
 
-        <!-- Liste des tâches (à gauche) -->
         <div class="taches-container">
             <h2>Tâches</h2>
             <ul>
@@ -37,20 +35,16 @@
 
     <h3>Le vote est pour la tâche </h3>
 
-<p id="tache-actuelle">
-    {% if tache_actuelle %}
-        {{ tache_actuelle }}
-    {% else %}
-        Aucune tâche actuelle pour le moment.
-    {% endif %}
-</p>
+    <p id="tache-actuelle">
+        {% if tache_actuelle %}
+            {{ tache_actuelle }}
+        {% else %}
+            Aucune tâche actuelle pour le moment.
+        {% endif %}
+    </p>
 
-<h4>C'est le tour de {{ joueur_en_cours.pseudo }} de voter</h4>
+    <h4>C'est le tour de {{ joueur_en_cours.pseudo }} de voter</h4>
 
-
-
-
-    <!-- Section de vote -->
     <h3>Votez pour une carte :</h3>
     <form method="POST" id="voteForm">
         {% csrf_token %}
@@ -98,7 +92,6 @@
         <button type="submit">Voter</button>
     </form>
 
-    <!-- État du backlog -->
     <h3>État actuel du backlog :</h3>
     <ul>
         {% for task, value in partie.etat_avancement.items %}
@@ -106,7 +99,6 @@
         {% endfor %}
     </ul>
 
-    <!-- Script pour gérer le vote par clic -->
     <script>
         const voteCards = document.querySelectorAll('.vote-card');
         const voteInput = document.getElementById('voteInput');
@@ -117,7 +109,7 @@
                 voteCards.forEach(c => c.classList.remove('selected'));
                 // Ajouter la classe 'selected' pour mettre en valeur la carte cliquée
                 card.classList.add('selected');
--
+                
                 // Enregistrer la valeur dans le champ caché
                 const value = card.getAttribute('data-value');
                 voteInput.value = value;
