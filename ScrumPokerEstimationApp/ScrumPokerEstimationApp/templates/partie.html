@@ -98,6 +98,14 @@
 <body>
     <h1>Partie {{ partie.code }}</h1>
 
+    <!-- Liste des joueurs -->
+    <h2>Joueurs</h2>
+    <ul>
+        {% for joueur in partie.joueurs.all %}
+            <li>{{ joueur.pseudo }}</li>
+        {% endfor %}
+    </ul>
+
     <h2>Tâches</h2>
     <p>
         <ul>
