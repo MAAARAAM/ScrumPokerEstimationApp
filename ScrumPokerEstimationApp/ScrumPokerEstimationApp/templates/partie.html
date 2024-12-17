@@ -35,10 +35,18 @@
 
     <h3>Votes :</h3>
 
-    <h3>Le vote est pour la tâche </h3>
-    <p id="tache-actuelle">{{ tache_actuelle }}</p>
+    <h3>Le vote est pour la tâche :</h3>
 
-    <h4>C'est le tour de {{ joueur_en_cours.pseudo }} de voter</h4>
+<p id="tache-actuelle">
+    {% if tache_actuelle %}
+        {{ tache_actuelle.description }}
+    {% else %}
+        Aucune tâche actuelle pour le moment.
+    {% endif %}
+</p>
+
+<h4>C'est le tour de {{ joueur_en_cours.pseudo }} de voter</h4>
+
 
 
     <!-- Section de vote -->
