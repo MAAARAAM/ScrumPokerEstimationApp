@@ -100,6 +100,10 @@ def rejoindre_partie(request):
     return render(request, 'rejoindre_partie.html')
 
 
+from django.shortcuts import render, redirect
+from django.http import JsonResponse
+from .models import Partie, Joueur
+
 def partie(request, code):
     try:
         partie = Partie.objects.get(code=code)
@@ -126,17 +130,19 @@ def partie(request, code):
         'mode': mode
     })
 
-
 def soumettre_vote(request, code):
-    partie = Partie.objects.get(code=code)
-    joueurs = partie.joueurs.all()
+    try:
+        partie = Partie.objects.get(code=code)
+    except Partie.DoesNotExist:
+        return JsonResponse({'error': 'Partie non trouvée'}, status=404)
 
+    joueurs = partie.joueurs.all()
     tache_actuelle = partie.backlog[partie.active_task]
     mode = partie.mode  # Mode de jeu
 
     # Enregistrer le vote du joueur
     vote = request.POST.get('vote')
-    joueur_en_cours = joueurs[request.session['tour_joueur']]
+    joueur_en_cours = joueurs[request.session['tour_joueur']]  # Le joueur en cours
 
     # Ajouter le vote à la liste des votes pour cette tâche
     if vote:
@@ -168,7 +174,12 @@ def soumettre_vote(request, code):
         # Incrémenter le tour pour passer au joueur suivant
         request.session['tour_joueur'] = (request.session['tour_joueur'] + 1) % len(joueurs)
 
+    # Sauvegarder les changements dans la base de données
+    partie.save()
+
     # Rediriger vers la page de la partie pour afficher le joueur suivant
     return redirect('partie', code=code)
+
+
 
 
