@@ -37,15 +37,14 @@ def lancer_partie(request):
         # Récupérer le nombre de tâches
         nb_taches = int(request.POST.get('nb_taches'))
         if nb_taches < 1:
-            return JsonResponse({'error': 'Le nombre de tâches doit être supérieur à zéro.'}, status=400)
+            return JsonResponse({'error': 'Le nombre de tâches doit être supérieur à 0.'}, status=400)
 
-        # Récupérer les tâches
+        # Récupérer les intitulés des tâches
         backlog = []
         for i in range(1, nb_taches + 1):
             tache = request.POST.get(f'tache_{i}')
             if not tache:
-                return JsonResponse({'error': f'La tâche {i} doit être saisie.'}, status=400)
-
+                return JsonResponse({'error': f'L\'intitulé de la tâche {i} est requis.'}, status=400)
             backlog.append({
                 "id": str(uuid.uuid4()),
                 "description": tache.strip(),
@@ -61,7 +60,7 @@ def lancer_partie(request):
         while Partie.objects.filter(code=code_unique).exists():
             code_unique = generer_code_unique()
 
-        # Créer la partie avec les joueurs et le backlog
+        # Créer la partie avec les joueurs et la tâche
         try:
             partie = Partie.objects.create(code=code_unique, mode=mode, backlog=backlog)
             partie.save()

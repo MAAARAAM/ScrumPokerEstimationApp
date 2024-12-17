@@ -1,18 +1,23 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    {% load static %}
-
     <title>Partie - {{ partie.code }}</title>
-
 </head>
 <body>
     <h1>Partie {{ partie.code }}</h1>
 
-    <h2>Tâche actuelle :</h2>
-    <p>{{ tache_actuelle }}</p> 
+    <h2>Tâches</h2>
+    <p>
+        <ul>
+            {% for tache in partie.backlog %}
+                <li>{{ tache.description }}</li> 
+            {% endfor %}
+        </ul>
+    </p> 
 
     <h3>Votes :</h3>
     <form method="POST">
@@ -24,22 +29,72 @@
                 <option value="{{ joueur.pseudo }}">{{ joueur.pseudo }}</option>
             {% endfor %}
         </select><br>
-        
         <h3>Votes :</h3>
         <div class="vote-cards">
-            <!-- Loop through the card_values passed from the view -->
-            {% for i in card_values %}
-                <div class="vote-card">
-                    <input type="radio" id="vote_{{ i }}" name="vote" value="{{ i }}" required>
-                    <label for="vote_{{ i }}">
-                        <img src="{% static 'cartes/carte_{{ i }}.svg' %}" alt="Carte {{ i }}">
-                    </label>
-                </div>
-            {% endfor %}
+            <div class="vote-card">
+                <input type="radio" id="vote_0" name="vote" value="0" required>
+                <label for="vote_0">
+                    <img src="{% static 'cartes/cartes_0.svg' %}" alt="Carte 0">
+                </label>
+            </div>
+            <div class="vote-card">
+                <input type="radio" id="vote_1" name="vote" value="1" required>
+                <label for="vote_1">
+                    <img src="{% static 'cartes/cartes_1.svg' %}" alt="Carte 1">
+                </label>
+            </div>
+            <div class="vote-card">
+                <input type="radio" id="vote_2" name="vote" value="2" required>
+                <label for="vote_2">
+                    <img src="{% static 'cartes/cartes_2.svg' %}" alt="Carte 2">
+                </label>
+            </div>
+            <div class="vote-card">
+                <input type="radio" id="vote_3" name="vote" value="3" required>
+                <label for="vote_3">
+                    <img src="{% static 'cartes/cartes_3.svg' %}" alt="Carte 3">
+                </label>
+            </div>
+            <div class="vote-card">
+                <input type="radio" id="vote_5" name="vote" value="5" required>
+                <label for="vote_5">
+                    <img src="{% static 'cartes/cartes_5.svg' %}" alt="Carte 5">
+                </label>
+            </div>
+            <div class="vote-card">
+                <input type="radio" id="vote_8" name="vote" value="8" required>
+                <label for="vote_8">
+                    <img src="{% static 'cartes/cartes_8.svg' %}" alt="Carte 8">
+                </label>
+            </div>
+            <div class="vote-card">
+                <input type="radio" id="vote_13" name="vote" value="13" required>
+                <label for="vote_13">
+                    <img src="{% static 'cartes/cartes_13.svg' %}" alt="Carte 13">
+                </label>
+            </div>
+            <div class="vote-card">
+                <input type="radio" id="vote_20" name="vote" value="20" required>
+                <label for="vote_20">
+                    <img src="{% static 'cartes/cartes_20.svg' %}" alt="Carte 20">
+                </label>
+            </div>
+            <div class="vote-card">
+                <input type="radio" id="vote_40" name="vote" value="40" required>
+                <label for="vote_40">
+                    <img src="{% static 'cartes/cartes_40.svg' %}" alt="Carte 40">
+                </label>
+            </div>
+            <div class="vote-card">
+                <input type="radio" id="vote_100" name="vote" value="100" required>
+                <label for="vote_100">
+                    <img src="{% static 'cartes/cartes_100.svg' %}" alt="Carte 100">
+                </label>
+            </div>
             <div class="vote-card">
                 <input type="radio" id="vote_cafe" name="vote" value="Café" required>
                 <label for="vote_cafe">
-                    <img src="{% static 'cartes/cartecafe.svg' %}" alt="Carte Café">
+                    <img src="{% static 'cartes/cartes_cafe.svg' %}" alt="Carte Café">
                 </label>
             </div>
             <div class="vote-card">
