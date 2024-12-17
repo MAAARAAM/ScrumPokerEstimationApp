@@ -112,3 +112,8 @@ button:hover {
 button:active {
     transform: scale(0.95);
 }
+
+/* CSS pour mettre en valeur l'image sélectionnée */
+.vote-card.selected img {
+    border: 3px solid #0056b3; /* Bordure verte pour l'image sélectionnée */
+}
