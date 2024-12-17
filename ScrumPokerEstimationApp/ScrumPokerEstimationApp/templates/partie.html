@@ -6,6 +6,7 @@
     <title>Partie - {{ partie.code }}</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'styles/partie.css' %}">
+
 </head>
 <body>
     <h1>Partie {{ partie.code }}</h1>
@@ -33,6 +34,20 @@
     </div>
 
     <h3>Votes :</h3>
+
+    <h3>Le vote est pour la tâche </h3>
+    <p id="tache-actuelle">{{ tache_actuelle }}</p>
+
+    <!-- Liste des joueurs -->
+    <h2>Joueurs</h2>
+    <ul>
+        {% for joueur in partie.joueurs.all %}
+            <li>{{ joueur.pseudo }}</li>
+        {% endfor %}
+    </ul>
+
+    <!-- Section de vote -->
+    <h3>Votez pour une carte :</h3>
     <form method="POST" id="voteForm">
         {% csrf_token %}
         <div class="vote-cards">
@@ -72,13 +87,14 @@
             <div class="vote-card" data-value="?">
                 <img src="{% static 'cartes/cartes_interro.svg' %}" alt="Carte ?">
             </div>
-        </div><br>
+        </div>
 
         <input type="hidden" id="voteInput" name="vote" required>
 
         <button type="submit">Voter</button>
     </form>
 
+    <!-- État du backlog -->
     <h3>État actuel du backlog :</h3>
     <ul>
         {% for task, value in partie.etat_avancement.items %}
@@ -86,16 +102,19 @@
         {% endfor %}
     </ul>
 
-    {% if partie.active_task == partie.backlog|length %}
-        <p>Le backlog est terminé !</p>
-    {% endif %}
-
+    <!-- Script pour gérer le vote par clic -->
     <script>
         const voteCards = document.querySelectorAll('.vote-card');
         const voteInput = document.getElementById('voteInput');
 
         voteCards.forEach(card => {
-            card.addEventListener('click', function() {
+            card.addEventListener('click', () => {
+                // Retirer la sélection actuelle
+                voteCards.forEach(c => c.classList.remove('selected'));
+                // Ajouter la classe 'selected' pour mettre en valeur la carte cliquée
+                card.classList.add('selected');
+
+                // Enregistrer la valeur dans le champ caché
                 const value = card.getAttribute('data-value');
                 voteInput.value = value;
             });
