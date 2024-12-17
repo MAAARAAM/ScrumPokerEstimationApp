@@ -35,15 +35,9 @@
 
     <h3>Votes :</h3>
 
-    <h3>Le vote est pour la tâche :</h3>
+    <h3>Le vote est pour la tâche </h3>
+    <p id="tache-actuelle">{{ tache_actuelle }}</p>
 
-<p id="tache-actuelle">
-    {% if tache_actuelle %}
-        {{ tache_actuelle.description }}
-    {% else %}
-        Aucune tâche actuelle pour le moment.
-    {% endif %}
-</p>
     <!-- Liste des joueurs -->
     <h2>Joueurs</h2>
     <ul>
@@ -119,7 +113,7 @@
                 voteCards.forEach(c => c.classList.remove('selected'));
                 // Ajouter la classe 'selected' pour mettre en valeur la carte cliquée
                 card.classList.add('selected');
-
+-
                 // Enregistrer la valeur dans le champ caché
                 const value = card.getAttribute('data-value');
                 voteInput.value = value;

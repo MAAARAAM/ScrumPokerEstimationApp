@@ -123,4 +123,3 @@ def partie(request, code):
         'tache_actuelle': tache_actuelle['description'],  # Affichage de la description
         'joueurs': joueurs
     })
-
