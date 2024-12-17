@@ -1,8 +1,8 @@
 from django.db import models
 
 class Joueur(models.Model):
-    pseudo = models.CharField(max_length=50, unique=True)
-    vote = models.CharField(max_length=10, null=True, blank=True)  # Valeur du vote du joueur
+    pseudo = models.CharField(max_length=100)
+    vote = models.CharField(max_length=20, blank=True, null=True)
 
 class Partie(models.Model):
     code = models.CharField(max_length=10, unique=True)

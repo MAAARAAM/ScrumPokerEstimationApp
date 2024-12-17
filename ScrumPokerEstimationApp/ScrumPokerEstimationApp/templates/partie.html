@@ -1,72 +1,39 @@
-{% load static %}
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Partie - {{ partie.code }}</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            margin: 0;
-            padding: 20px;
-            min-height: 100vh;
-            gap: 10px;
-        }
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'styles/partie.css' %}">
 
-        h1, h2, h3 {
-            margin: 10px 0;
-        }
-
-        .vote-cards {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 10px;
-            justify-items: center;
-        }
-
-        .vote-card img {
-            width: 100px;
-            height: 100px;
-            cursor: pointer;
-            border-radius: 8px;
-            transition: all 0.2s ease-in-out;
-        }
-
-        .vote-card img:hover {
-            transform: scale(1.1);
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-        }
-
-        .vote-card.selected img {
-            box-shadow: 0 0 15px rgba(0, 123, 255, 0.8);
-            border: 2px solid #007BFF;
-            transform: scale(1.05);
-        }
-
-        button {
-            padding: 8px 16px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
-            font-size: 14px;
-            border-radius: 5px;
-        }
-
-        button:hover {
-            background-color: #45a049;
-        }
-    </style>
 </head>
 <body>
     <h1>Partie {{ partie.code }}</h1>
+
+    <div class="container">
+        <!-- Liste des joueurs (à droite) -->
+        <div class="joueurs-container">
+            <h2>Joueurs</h2>
+            <ul>
+                {% for joueur in partie.joueurs.all %}
+                    <li>{{ joueur.pseudo }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- Liste des tâches (à gauche) -->
+        <div class="taches-container">
+            <h2>Tâches</h2>
+            <ul>
+                {% for tache in partie.backlog %}
+                    <li>{{ tache.description }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <h3>Votes :</h3>
 
     <h3>Le vote est pour la tâche </h3>
     <p id="tache-actuelle">{{ tache_actuelle }}</p>

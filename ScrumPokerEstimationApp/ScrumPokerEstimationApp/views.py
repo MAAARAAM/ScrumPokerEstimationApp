@@ -162,9 +162,10 @@ def partie(request, code):
                 joueur.vote = None
                 joueur.save()
 
+
     joueurs = partie.joueurs.all()
     return render(request, 'partie.html', {
         'partie': partie,
-        'tache_actuelle': tache_actuelle['description'],  # Affichage de la description de la tâche
+        'tache_actuelle': partie.taches.first(),  # Affichage de la description de la tâche
         'joueurs': joueurs
     })
