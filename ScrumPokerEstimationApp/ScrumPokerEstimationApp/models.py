@@ -4,6 +4,7 @@ class Joueur(models.Model):
     pseudo = models.CharField(max_length=100)
     vote = models.CharField(max_length=20, blank=True, null=True)
 
+
 class Partie(models.Model):
     code = models.CharField(max_length=5, unique=True)
     mode = models.CharField(max_length=10)  # strict ou moyenne
