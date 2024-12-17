@@ -99,11 +99,6 @@ def rejoindre_partie(request):
 
     return render(request, 'rejoindre_partie.html')
 
-
-from django.shortcuts import render, redirect
-from django.http import JsonResponse
-from .models import Partie, Joueur
-
 def partie(request, code):
     try:
         partie = Partie.objects.get(code=code)
@@ -118,10 +113,39 @@ def partie(request, code):
     if 'tour_joueur' not in request.session:
         request.session['tour_joueur'] = 0
 
-    # Récupérer le joueur actuel
-    joueur_en_cours = joueurs[request.session['tour_joueur']]
+    joueur_en_cours = joueurs[request.session['tour_joueur']]  # Joueur en cours
 
-    # Afficher la tâche actuelle et le joueur en cours
+    if request.method == 'POST':
+        # Récupérer le vote du joueur
+        vote = request.POST.get('vote')
+
+        # Enregistrer le vote dans la partie
+        if partie.votes.get(partie.active_task) is None:
+            partie.votes[partie.active_task] = {}
+
+        partie.votes[partie.active_task][joueur_en_cours.id] = vote
+        partie.save()
+
+        # Passer au joueur suivant
+        request.session['tour_joueur'] = (request.session['tour_joueur'] + 1) % len(joueurs)
+
+        # Vérifier si tous les joueurs ont voté
+        votes_actuels = partie.votes[partie.active_task]
+        if len(votes_actuels) == len(joueurs):
+            if len(set(votes_actuels.values())) == 1:  # Si tous les votes sont égaux
+                # Passer à la tâche suivante
+                partie.active_task += 1
+                partie.save()
+
+                # Réinitialiser les votes pour la tâche suivante
+                partie.votes[partie.active_task] = {}
+                partie.save()
+
+                return redirect('partie', code=code)  # Recharger la page
+
+        return redirect('partie', code=code)
+
+    # Affichage des informations pour la partie
     return render(request, 'partie.html', {
         'partie': partie,
         'tache_actuelle': tache_actuelle['description'],
