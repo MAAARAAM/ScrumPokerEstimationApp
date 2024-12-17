@@ -118,8 +118,10 @@ def partie(request, code):
     
     # Récupère la tâche actuelle
     if partie.active_task < len(partie.backlog):
-        backlog_data = json.loads(partie.backlog)  # On charge le JSON
+        
+        backlog_data = partie.backlog  # Déjà une liste grâce à JSONField
         tache_actuelle = backlog_data[partie.active_task]  # On accède à la tâche actuelle
+
     else:
         return JsonResponse({'message': 'Toutes les tâches sont terminées !'}, status=200)
 
