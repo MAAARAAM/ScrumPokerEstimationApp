@@ -3,7 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+
     <title>Partie - {{ partie.code }}</title>
+
 </head>
 <body>
     <h1>Partie {{ partie.code }}</h1>
@@ -21,23 +24,32 @@
                 <option value="{{ joueur.pseudo }}">{{ joueur.pseudo }}</option>
             {% endfor %}
         </select><br>
-
-        <label for="vote">Votre vote :</label>
-        <select id="vote" name="vote" required>
-            <option value="0">0</option>
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="5">5</option>
-            <option value="8">8</option>
-            <option value="13">13</option>
-            <option value="20">20</option>
-            <option value="40">40</option>
-            <option value="100">100</option>
-            <option value="Café">Café</option>
-            <option value="?">?</option>
-        </select><br>
-
+        
+        <h3>Votes :</h3>
+        <div class="vote-cards">
+            <!-- Loop through the card_values passed from the view -->
+            {% for i in card_values %}
+                <div class="vote-card">
+                    <input type="radio" id="vote_{{ i }}" name="vote" value="{{ i }}" required>
+                    <label for="vote_{{ i }}">
+                        <img src="{% static 'cartes/carte_{{ i }}.svg' %}" alt="Carte {{ i }}">
+                    </label>
+                </div>
+            {% endfor %}
+            <div class="vote-card">
+                <input type="radio" id="vote_cafe" name="vote" value="Café" required>
+                <label for="vote_cafe">
+                    <img src="{% static 'cartes/cartecafe.svg' %}" alt="Carte Café">
+                </label>
+            </div>
+            <div class="vote-card">
+                <input type="radio" id="vote_question" name="vote" value="?" required>
+                <label for="vote_question">
+                    <img src="{% static 'cartes/cartes_interro.svg' %}" alt="Carte ?">
+                </label>
+            </div>
+        </div><br>
+    
         <button type="submit">Voter</button>
     </form>
 
