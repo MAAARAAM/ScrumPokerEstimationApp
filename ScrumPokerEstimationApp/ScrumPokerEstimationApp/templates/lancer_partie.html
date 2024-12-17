@@ -11,58 +11,32 @@
     <form method="POST">
         {% csrf_token %}
         
+        <!-- Nombre de joueurs -->
         <label for="nb_joueurs">Nombre de joueurs :</label>
         <input type="number" id="nb_joueurs" name="nb_joueurs" min="1" max="10" required><br>
 
-        <div id="joueurs">
-            <label for="joueur_1">Pseudo joueur 1 :</label>
-            <input type="text" id="joueur_1" name="joueur_1" required><br>
-        </div>
-
+        <!-- Mode de jeu -->
         <label for="mode">Mode de jeu :</label>
         <select name="mode" id="mode" required>
             <option value="strict">Mode Strict</option>
             <option value="moyenne">Mode Moyenne</option>
         </select><br>
 
+        <!-- Tâches du backlog -->
         <div id="backlog-tasks">
             <h3>Tâches du backlog :</h3>
             <label for="task_1">Tâche 1 :</label>
             <input type="text" id="task_1" name="task_1" required><br>
         </div>
-
+        
         <button type="submit">Lancer la partie</button>
     </form>
 
+    <!-- Script pour ajouter des champs de tâches -->
     <script>
-        // Ajouter dynamiquement les champs pour les tâches en fonction du nombre de tâches à ajouter
-        const nbJoueursInput = document.getElementById('nb_joueurs');
-        const joueursDiv = document.getElementById('joueurs');
+        let taskCount = 1;
         const backlogDiv = document.getElementById('backlog-tasks');
 
-        nbJoueursInput.addEventListener('input', function() {
-            const nbJoueurs = parseInt(nbJoueursInput.value);
-            joueursDiv.innerHTML = '';  // Reset les champs existants
-
-            for (let i = 1; i <= nbJoueurs; i++) {
-                const label = document.createElement('label');
-                label.setAttribute('for', 'joueur_' + i);
-                label.innerHTML = 'Pseudo joueur ' + i + ': ';
-                
-                const input = document.createElement('input');
-                input.type = 'text';
-                input.id = 'joueur_' + i;
-                input.name = 'joueur_' + i;
-                input.required = true;
-
-                joueursDiv.appendChild(label);
-                joueursDiv.appendChild(input);
-                joueursDiv.appendChild(document.createElement('br'));
-            }
-        });
-
-        // Ajouter dynamiquement les champs de tâches (backlog)
-        let taskCount = 1;
         function addTaskField() {
             taskCount++;
             const label = document.createElement('label');

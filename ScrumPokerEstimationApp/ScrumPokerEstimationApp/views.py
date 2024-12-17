@@ -18,63 +18,37 @@ def generer_code_unique():
 
 def lancer_partie(request):
     if request.method == 'POST':
-        # Récupération du nombre de joueurs
-        try:
-            nb_joueurs = int(request.POST['nb_joueurs'])
-        except (KeyError, ValueError):
-            return JsonResponse({'error': 'Le nombre de joueurs est invalide.'}, status=400)
-
-        # Récupérer les pseudos des joueurs
-        pseudos = [request.POST.get(f'joueur_{i+1}', '').strip() for i in range(nb_joueurs)]
-
-        # Vérification des pseudos
-        if '' in pseudos:
-            return JsonResponse({'error': 'Tous les pseudos des joueurs doivent être fournis.'}, status=400)
-        if len(pseudos) != len(set(pseudos)):
-            return JsonResponse({'error': 'Les pseudos des joueurs doivent être uniques.'}, status=400)
-
         # Récupérer le mode de la partie
         mode = request.POST.get('mode')
         if not mode:
             return JsonResponse({'error': 'Le mode de jeu doit être sélectionné.'}, status=400)
 
-        # Récupérer la description de la tâche unique
-        task_description = request.POST.get('task_1', '').strip()
-        if not task_description:
-            return JsonResponse({'error': 'Veuillez décrire la tâche à estimer.'}, status=400)
+        # Récupérer les tâches du backlog
+        backlog = []
+        for key, value in request.POST.items():
+            if key.startswith('task_') and value.strip():
+                backlog.append({
+                    "id": str(uuid.uuid4()),
+                    "description": value.strip(),
+                    "date_created": timezone.now().isoformat()
+                })
 
-        # Créer le backlog avec une seule tâche
-        backlog = [
-            {
-                "id": str(uuid.uuid4()),  # Identifiant unique pour la tâche
-                "description": task_description,
-                "date_created": timezone.now().isoformat()
-            }
-        ]
+        if not backlog:
+            return JsonResponse({'error': 'Veuillez décrire au moins une tâche.'}, status=400)
 
         # Générer un code unique pour la partie
         code_unique = generer_code_unique()
         while Partie.objects.filter(code=code_unique).exists():
-            code_unique = generer_code_unique()  # Assurez-vous que le code est unique
+            code_unique = generer_code_unique()
 
-        # Créer les joueurs
-        joueurs = []
-        try:
-            for pseudo in pseudos:
-                joueur = Joueur.objects.create(pseudo=pseudo)
-                joueurs.append(joueur)
-        except Exception as e:
-            return JsonResponse({'error': f'Erreur lors de la création des joueurs : {str(e)}'}, status=500)
-
-        # Créer la partie avec le backlog et les joueurs
+        # Créer la partie avec le backlog
         try:
             partie = Partie.objects.create(code=code_unique, mode=mode, backlog=backlog)
-            partie.joueurs.set(joueurs)
             partie.save()
         except IntegrityError:
             return JsonResponse({'error': 'Une erreur est survenue, veuillez réessayer.'}, status=500)
 
-        # Afficher le code unique pour permettre aux joueurs de rejoindre la partie
+        # Rediriger vers la page affichant le code unique
         return render(request, 'code_partie.html', {'code_partie': code_unique})
 
     # Afficher le formulaire pour lancer la partie
@@ -87,22 +61,31 @@ def rejoindre_partie(request):
         pseudo = request.POST['pseudo']
 
         try:
+            # Récupérer la partie correspondant au code
             partie = Partie.objects.get(code=code_partie)
         except Partie.DoesNotExist:
             return render(request, 'rejoindre_partie.html', {'error': 'Partie non trouvée'})
 
-        if len(partie.joueurs.all()) < partie.mode:  # Vérifier si la partie a encore des places
+        # Ajouter le joueur à la partie
+        try:
             joueur = Joueur.objects.create(pseudo=pseudo)
             partie.joueurs.add(joueur)
             partie.save()
-            return redirect('partie', code=partie.code)
-        else:
-            return render(request, 'rejoindre_partie.html', {'error': 'La partie est pleine'})
+        except Exception as e:
+            return render(request, 'rejoindre_partie.html', {'error': f'Erreur : {str(e)}'})
 
+        # Rediriger vers la page de la partie
+        return redirect('partie', code=partie.code)
+
+    # Afficher le formulaire pour rejoindre la partie
     return render(request, 'rejoindre_partie.html')
 
+
 def partie(request, code):
-    partie = Partie.objects.get(code=code)
+    try:
+        partie = Partie.objects.get(code=code)
+    except Partie.DoesNotExist:
+        return JsonResponse({'error': 'Partie non trouvée'}, status=404)
     
     # Assurez-vous que active_task est un index dans le backlog
     if partie.active_task < len(partie.backlog):
@@ -112,7 +95,12 @@ def partie(request, code):
         tache_description = "Aucune tâche actuelle"
     
     if request.method == 'POST':
-        joueur = Joueur.objects.get(pseudo=request.POST['pseudo'])
+        pseudo = request.POST['pseudo']
+        try:
+            joueur = Joueur.objects.get(pseudo=pseudo)
+        except Joueur.DoesNotExist:
+            return JsonResponse({'error': 'Joueur non trouvé'}, status=404)
+
         joueur.vote = request.POST['vote']
         joueur.save()
 
@@ -142,4 +130,3 @@ def partie(request, code):
                 joueur.save()
 
     return render(request, 'partie.html', {'partie': partie, 'tache_actuelle': tache_description})
-
