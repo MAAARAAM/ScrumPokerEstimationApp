@@ -38,13 +38,8 @@
     <h3>Le vote est pour la tâche </h3>
     <p id="tache-actuelle">{{ tache_actuelle }}</p>
 
-    <!-- Liste des joueurs -->
-    <h2>Joueurs</h2>
-    <ul>
-        {% for joueur in partie.joueurs.all %}
-            <li>{{ joueur.pseudo }}</li>
-        {% endfor %}
-    </ul>
+    <h4>C'est le tour de {{ joueur_en_cours.pseudo }} de voter</h4>
+
 
     <!-- Section de vote -->
     <h3>Votez pour une carte :</h3>
