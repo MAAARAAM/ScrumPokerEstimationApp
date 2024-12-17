@@ -6,6 +6,94 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Partie - {{ partie.code }}</title>
+    <style>
+        /* Centrer tout le contenu de la page */
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            gap: 10px; /* Réduit l'espace entre les éléments de la page */
+        }
+
+        h1, h2, h3 {
+            margin: 10px 0; /* Espaces réduits entre les titres */
+        }
+
+        /* Formulaire de vote */
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            max-width: 800px;
+            gap: 10px; /* Réduit l'espace entre les éléments du formulaire */
+        }
+
+        /* Disposition des cartes de vote */
+        .vote-cards {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr); /* 5 cartes par ligne */
+            gap: 10px; /* Réduit l'espace entre les cartes */
+            justify-items: center;
+        }
+
+        .vote-card img {
+            width: 100px;
+            height: 100px;
+            object-fit: contain;
+            cursor: pointer;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out, filter 0.2s ease-in-out, background-color 0.2s ease-in-out; /* Ajout d'une transition pour le flou et la couleur de fond */
+            background-color: transparent; /* Fond initial transparent */
+            border-radius: 8px; /* Bords arrondis pour un meilleur rendu visuel */
+        }
+        
+        /* Effet hover sur les cartes */
+        .vote-card img:hover {
+            transform: scale(1.1); /* Agrandir légèrement l'image */
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3); /* Ajouter une ombre */
+        }
+        
+        /* Effet lorsque la carte est cliquée (active) */
+        .vote-card img:active {
+            transform: scale(0.95); /* Réduire légèrement l'image pour simuler un clic */
+            box-shadow: 0 0 25px rgba(0, 0, 0, 0.5); /* Augmenter l'ombre pour l'effet de clic */
+            filter: blur(3px); /* Ajouter un flou à l'image lors du clic */
+            background-color: #007BFF; /* Changer la couleur de fond en bleu */
+            opacity: 0.8; /* Légèrement réduire l'opacité pour l'effet de clic */
+        }
+
+        /* Bouton */
+        button {
+            padding: 8px 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        /* Liste des tâches */
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 10px 0; /* Réduit l'espace entre la liste des tâches et les autres sections */
+        }
+
+        ul li {
+            margin: 3px 0; /* Réduit l'espace entre les éléments de la liste */
+        }
+    </style>
 </head>
 <body>
     <h1>Partie {{ partie.code }}</h1>
@@ -20,91 +108,51 @@
     </p> 
 
     <h3>Votes :</h3>
-    <form method="POST">
+    <form method="POST" id="voteForm">
         {% csrf_token %}
         
-        <label for="pseudo">Votre pseudo :</label>
-        <select id="pseudo" name="pseudo" required>
-            {% for joueur in partie.joueurs.all %}
-                <option value="{{ joueur.pseudo }}">{{ joueur.pseudo }}</option>
-            {% endfor %}
-        </select><br>
         <h3>Votes :</h3>
         <div class="vote-cards">
-            <div class="vote-card">
-                <input type="radio" id="vote_0" name="vote" value="0" required>
-                <label for="vote_0">
-                    <img src="{% static 'cartes/cartes_0.svg' %}" alt="Carte 0">
-                </label>
+            <div class="vote-card" data-value="0">
+                <img src="{% static 'cartes/cartes_0.svg' %}" alt="Carte 0">
             </div>
-            <div class="vote-card">
-                <input type="radio" id="vote_1" name="vote" value="1" required>
-                <label for="vote_1">
-                    <img src="{% static 'cartes/cartes_1.svg' %}" alt="Carte 1">
-                </label>
+            <div class="vote-card" data-value="1">
+                <img src="{% static 'cartes/cartes_1.svg' %}" alt="Carte 1">
             </div>
-            <div class="vote-card">
-                <input type="radio" id="vote_2" name="vote" value="2" required>
-                <label for="vote_2">
-                    <img src="{% static 'cartes/cartes_2.svg' %}" alt="Carte 2">
-                </label>
+            <div class="vote-card" data-value="2">
+                <img src="{% static 'cartes/cartes_2.svg' %}" alt="Carte 2">
             </div>
-            <div class="vote-card">
-                <input type="radio" id="vote_3" name="vote" value="3" required>
-                <label for="vote_3">
-                    <img src="{% static 'cartes/cartes_3.svg' %}" alt="Carte 3">
-                </label>
+            <div class="vote-card" data-value="3">
+                <img src="{% static 'cartes/cartes_3.svg' %}" alt="Carte 3">
             </div>
-            <div class="vote-card">
-                <input type="radio" id="vote_5" name="vote" value="5" required>
-                <label for="vote_5">
-                    <img src="{% static 'cartes/cartes_5.svg' %}" alt="Carte 5">
-                </label>
+            <div class="vote-card" data-value="5">
+                <img src="{% static 'cartes/cartes_5.svg' %}" alt="Carte 5">
             </div>
-            <div class="vote-card">
-                <input type="radio" id="vote_8" name="vote" value="8" required>
-                <label for="vote_8">
-                    <img src="{% static 'cartes/cartes_8.svg' %}" alt="Carte 8">
-                </label>
+            <div class="vote-card" data-value="8">
+                <img src="{% static 'cartes/cartes_8.svg' %}" alt="Carte 8">
             </div>
-            <div class="vote-card">
-                <input type="radio" id="vote_13" name="vote" value="13" required>
-                <label for="vote_13">
-                    <img src="{% static 'cartes/cartes_13.svg' %}" alt="Carte 13">
-                </label>
+            <div class="vote-card" data-value="13">
+                <img src="{% static 'cartes/cartes_13.svg' %}" alt="Carte 13">
             </div>
-            <div class="vote-card">
-                <input type="radio" id="vote_20" name="vote" value="20" required>
-                <label for="vote_20">
-                    <img src="{% static 'cartes/cartes_20.svg' %}" alt="Carte 20">
-                </label>
+            <div class="vote-card" data-value="20">
+                <img src="{% static 'cartes/cartes_20.svg' %}" alt="Carte 20">
             </div>
-            <div class="vote-card">
-                <input type="radio" id="vote_40" name="vote" value="40" required>
-                <label for="vote_40">
-                    <img src="{% static 'cartes/cartes_40.svg' %}" alt="Carte 40">
-                </label>
+            <div class="vote-card" data-value="40">
+                <img src="{% static 'cartes/cartes_40.svg' %}" alt="Carte 40">
             </div>
-            <div class="vote-card">
-                <input type="radio" id="vote_100" name="vote" value="100" required>
-                <label for="vote_100">
-                    <img src="{% static 'cartes/cartes_100.svg' %}" alt="Carte 100">
-                </label>
+            <div class="vote-card" data-value="100">
+                <img src="{% static 'cartes/cartes_100.svg' %}" alt="Carte 100">
             </div>
-            <div class="vote-card">
-                <input type="radio" id="vote_cafe" name="vote" value="Café" required>
-                <label for="vote_cafe">
-                    <img src="{% static 'cartes/cartes_cafe.svg' %}" alt="Carte Café">
-                </label>
+            <div class="vote-card" data-value="Café">
+                <img src="{% static 'cartes/cartes_cafe.svg' %}" alt="Carte Café">
             </div>
-            <div class="vote-card">
-                <input type="radio" id="vote_question" name="vote" value="?" required>
-                <label for="vote_question">
-                    <img src="{% static 'cartes/cartes_interro.svg' %}" alt="Carte ?">
-                </label>
+            <div class="vote-card" data-value="?">
+                <img src="{% static 'cartes/cartes_interro.svg' %}" alt="Carte ?">
             </div>
         </div><br>
-    
+
+        <input type="hidden" id="voteInput" name="vote" required>
+
         <button type="submit">Voter</button>
     </form>
 
@@ -118,5 +166,18 @@
     {% if partie.active_task == partie.backlog|length %}
         <p>Le backlog est terminé !</p>
     {% endif %}
+
+    <script>
+        // Ajout de l'événement click sur chaque carte pour sélectionner la valeur correspondante
+        const voteCards = document.querySelectorAll('.vote-card');
+        const voteInput = document.getElementById('voteInput');
+
+        voteCards.forEach(card => {
+            card.addEventListener('click', function() {
+                const value = card.getAttribute('data-value');
+                voteInput.value = value; // Associe la valeur de la carte au champ hidden
+            });
+        });
+    </script>
 </body>
 </html>
