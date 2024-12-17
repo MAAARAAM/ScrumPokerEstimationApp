@@ -108,6 +108,7 @@ def partie(request, code):
 
     joueurs = partie.joueurs.all()
     tache_actuelle = partie.backlog[partie.active_task]
+    mode = partie.mode  # Mode de jeu
 
     # Si le compteur 'tour_joueur' n'existe pas dans la session, on l'initialise
     if 'tour_joueur' not in request.session:
@@ -121,19 +122,53 @@ def partie(request, code):
         'partie': partie,
         'tache_actuelle': tache_actuelle['description'],
         'joueur_en_cours': joueur_en_cours,  # Le joueur dont c'est le tour
-        'joueurs': joueurs
+        'joueurs': joueurs,
+        'mode': mode
     })
 
+
 def soumettre_vote(request, code):
-    # Récupérer la partie
     partie = Partie.objects.get(code=code)
     joueurs = partie.joueurs.all()
 
-    # Sauvegarder le vote ici (non montré)
+    tache_actuelle = partie.backlog[partie.active_task]
+    mode = partie.mode  # Mode de jeu
 
-    # Incrémenter le compteur du joueur en cours et le réinitialiser si nécessaire
-    request.session['tour_joueur'] = (request.session['tour_joueur'] + 1) % len(joueurs)
+    # Enregistrer le vote du joueur
+    vote = request.POST.get('vote')
+    joueur_en_cours = joueurs[request.session['tour_joueur']]
+
+    # Ajouter le vote à la liste des votes pour cette tâche
+    if vote:
+        if str(partie.active_task) not in partie.etat_avancement:
+            partie.etat_avancement[str(partie.active_task)] = []
+
+        partie.etat_avancement[str(partie.active_task)].append(vote)
+
+    # Vérifier si tous les joueurs ont voté
+    if len(partie.etat_avancement[str(partie.active_task)]) == len(joueurs):
+        votes = partie.etat_avancement[str(partie.active_task)]
+
+        if mode == 'strict':
+            # Vérifier si tous les votes sont identiques
+            if len(set(votes)) == 1:
+                # Clôturer le vote pour cette tâche et passer à la suivante
+                partie.active_task += 1  # Passer à la tâche suivante
+                partie.etat_avancement[str(partie.active_task)] = []  # Réinitialiser les votes pour la tâche suivante
+        elif mode == 'moyenne':
+            # Calculer la moyenne des votes
+            moyenne_vote = sum(int(vote) for vote in votes if vote.isdigit()) / len(votes)
+            partie.etat_avancement[str(partie.active_task)] = moyenne_vote
+            partie.active_task += 1  # Passer à la tâche suivante
+
+        # Réinitialiser le tour du joueur après chaque tâche
+        request.session['tour_joueur'] = 0
+
+    else:
+        # Incrémenter le tour pour passer au joueur suivant
+        request.session['tour_joueur'] = (request.session['tour_joueur'] + 1) % len(joueurs)
 
     # Rediriger vers la page de la partie pour afficher le joueur suivant
     return redirect('partie', code=code)
+
 
