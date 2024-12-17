@@ -11,3 +11,4 @@ class Partie(models.Model):
     active_task = models.IntegerField(default=0)  # Index de la tâche actuelle
     etat_avancement = models.JSONField(default=dict)  # Résultats des votes par tâche
     joueurs = models.ManyToManyField(Joueur)
+    votes = models.JSONField(default=dict)  # Enregistre les votes des joueurs par tâche
