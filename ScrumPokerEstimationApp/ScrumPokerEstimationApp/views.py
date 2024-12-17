@@ -159,3 +159,4 @@ def partie(request, code):
                 joueur.save()
 
     return render(request, 'partie.html', {'partie': partie, 'tache_actuelle': tache_description})
+

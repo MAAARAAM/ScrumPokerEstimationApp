@@ -1,125 +1,40 @@
-{% load static %}
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Partie - {{ partie.code }}</title>
-    <style>
-        /* Centrer tout le contenu de la page */
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            margin: 0;
-            padding: 20px;
-            min-height: 100vh;
-            gap: 10px; /* Réduit l'espace entre les éléments de la page */
-        }
-
-        h1, h2, h3 {
-            margin: 10px 0; /* Espaces réduits entre les titres */
-        }
-
-        /* Formulaire de vote */
-        form {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            max-width: 800px;
-            gap: 10px; /* Réduit l'espace entre les éléments du formulaire */
-        }
-
-        /* Disposition des cartes de vote */
-        .vote-cards {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr); /* 5 cartes par ligne */
-            gap: 10px; /* Réduit l'espace entre les cartes */
-            justify-items: center;
-        }
-
-        .vote-card img {
-            width: 100px;
-            height: 100px;
-            object-fit: contain;
-            cursor: pointer;
-            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out, filter 0.2s ease-in-out, background-color 0.2s ease-in-out; /* Ajout d'une transition pour le flou et la couleur de fond */
-            background-color: transparent; /* Fond initial transparent */
-            border-radius: 8px; /* Bords arrondis pour un meilleur rendu visuel */
-        }
-        
-        /* Effet hover sur les cartes */
-        .vote-card img:hover {
-            transform: scale(1.1); /* Agrandir légèrement l'image */
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3); /* Ajouter une ombre */
-        }
-        
-        /* Effet lorsque la carte est cliquée (active) */
-        .vote-card img:active {
-            transform: scale(0.95); /* Réduire légèrement l'image pour simuler un clic */
-            box-shadow: 0 0 25px rgba(0, 0, 0, 0.5); /* Augmenter l'ombre pour l'effet de clic */
-            filter: blur(3px); /* Ajouter un flou à l'image lors du clic */
-            background-color: #007BFF; /* Changer la couleur de fond en bleu */
-            opacity: 0.8; /* Légèrement réduire l'opacité pour l'effet de clic */
-        }
-
-        /* Bouton */
-        button {
-            padding: 8px 16px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        button:hover {
-            background-color: #45a049;
-        }
-
-        /* Liste des tâches */
-        ul {
-            list-style-type: none;
-            padding: 0;
-            margin: 10px 0; /* Réduit l'espace entre la liste des tâches et les autres sections */
-        }
-
-        ul li {
-            margin: 3px 0; /* Réduit l'espace entre les éléments de la liste */
-        }
-    </style>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'styles/partie.css' %}">
 </head>
 <body>
     <h1>Partie {{ partie.code }}</h1>
 
-    <!-- Liste des joueurs -->
-    <h2>Joueurs</h2>
-    <ul>
-        {% for joueur in partie.joueurs.all %}
-            <li>{{ joueur.pseudo }}</li>
-        {% endfor %}
-    </ul>
+    <div class="container">
+        <!-- Liste des joueurs (à droite) -->
+        <div class="joueurs-container">
+            <h2>Joueurs</h2>
+            <ul>
+                {% for joueur in partie.joueurs.all %}
+                    <li>{{ joueur.pseudo }}</li>
+                {% endfor %}
+            </ul>
+        </div>
 
-    <h2>Tâches</h2>
-    <p>
-        <ul>
-            {% for tache in partie.backlog %}
-                <li>{{ tache.description }}</li> 
-            {% endfor %}
-        </ul>
-    </p> 
+        <!-- Liste des tâches (à gauche) -->
+        <div class="taches-container">
+            <h2>Tâches</h2>
+            <ul>
+                {% for tache in partie.backlog %}
+                    <li>{{ tache.description }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
 
     <h3>Votes :</h3>
     <form method="POST" id="voteForm">
         {% csrf_token %}
-        
-        <h3>Votes :</h3>
         <div class="vote-cards">
             <div class="vote-card" data-value="0">
                 <img src="{% static 'cartes/cartes_0.svg' %}" alt="Carte 0">
@@ -176,14 +91,13 @@
     {% endif %}
 
     <script>
-        // Ajout de l'événement click sur chaque carte pour sélectionner la valeur correspondante
         const voteCards = document.querySelectorAll('.vote-card');
         const voteInput = document.getElementById('voteInput');
 
         voteCards.forEach(card => {
             card.addEventListener('click', function() {
                 const value = card.getAttribute('data-value');
-                voteInput.value = value; // Associe la valeur de la carte au champ hidden
+                voteInput.value = value;
             });
         });
     </script>
