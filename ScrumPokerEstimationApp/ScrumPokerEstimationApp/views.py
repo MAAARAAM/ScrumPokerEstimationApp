@@ -5,45 +5,79 @@ from django.utils import timezone
 from django.db import IntegrityError
 from .models import Partie, Joueur
 import uuid
+import random
+import string
 
 def home(request):
     return render(request, 'home.html')
 
+def generer_code_unique():
+    """Génère un code unique de 5 caractères (chiffres et lettres)."""
+    return ''.join(random.choices(string.ascii_uppercase + string.digits, k=5))
+
+
 def lancer_partie(request):
     if request.method == 'POST':
-        nb_joueurs = int(request.POST['nb_joueurs'])
-        pseudos = [request.POST[f'joueur_{i+1}'] for i in range(nb_joueurs)]
+        # Récupération du nombre de joueurs
+        try:
+            nb_joueurs = int(request.POST['nb_joueurs'])
+        except (KeyError, ValueError):
+            return JsonResponse({'error': 'Le nombre de joueurs est invalide.'}, status=400)
 
-        # Vérifier que les pseudos sont uniques
+        # Récupérer les pseudos des joueurs
+        pseudos = [request.POST.get(f'joueur_{i+1}', '').strip() for i in range(nb_joueurs)]
+
+        # Vérification des pseudos
+        if '' in pseudos:
+            return JsonResponse({'error': 'Tous les pseudos des joueurs doivent être fournis.'}, status=400)
         if len(pseudos) != len(set(pseudos)):
             return JsonResponse({'error': 'Les pseudos des joueurs doivent être uniques.'}, status=400)
 
-        mode = request.POST['mode']
+        # Récupérer le mode de la partie
+        mode = request.POST.get('mode')
+        if not mode:
+            return JsonResponse({'error': 'Le mode de jeu doit être sélectionné.'}, status=400)
 
         # Récupérer la description de la tâche unique
-        task_description = request.POST.get('task_1')  # Une seule tâche
+        task_description = request.POST.get('task_1', '').strip()
         if not task_description:
             return JsonResponse({'error': 'Veuillez décrire la tâche à estimer.'}, status=400)
 
-        # Créer le backlog avec la seule tâche
+        # Créer le backlog avec une seule tâche
         backlog = [
             {
                 "id": str(uuid.uuid4()),  # Identifiant unique pour la tâche
                 "description": task_description,
-                "date_created": timezone.now().isoformat()  # Date de création
+                "date_created": timezone.now().isoformat()
             }
         ]
 
+        # Générer un code unique pour la partie
+        code_unique = generer_code_unique()
+        while Partie.objects.filter(code=code_unique).exists():
+            code_unique = generer_code_unique()  # Assurez-vous que le code est unique
+
         # Créer les joueurs
-        joueurs = [Joueur.objects.create(pseudo=pseudo) for pseudo in pseudos]
+        joueurs = []
+        try:
+            for pseudo in pseudos:
+                joueur = Joueur.objects.create(pseudo=pseudo)
+                joueurs.append(joueur)
+        except Exception as e:
+            return JsonResponse({'error': f'Erreur lors de la création des joueurs : {str(e)}'}, status=500)
 
-        # Créer la partie avec le backlog
-        partie = Partie.objects.create(code="12345", mode=mode, backlog=backlog)
-        partie.joueurs.set(joueurs)
-        partie.save()
+        # Créer la partie avec le backlog et les joueurs
+        try:
+            partie = Partie.objects.create(code=code_unique, mode=mode, backlog=backlog)
+            partie.joueurs.set(joueurs)
+            partie.save()
+        except IntegrityError:
+            return JsonResponse({'error': 'Une erreur est survenue, veuillez réessayer.'}, status=500)
 
-        return redirect('partie', code=partie.code)
+        # Afficher le code unique pour permettre aux joueurs de rejoindre la partie
+        return render(request, 'code_partie.html', {'code_partie': code_unique})
 
+    # Afficher le formulaire pour lancer la partie
     return render(request, 'lancer_partie.html')
 
 

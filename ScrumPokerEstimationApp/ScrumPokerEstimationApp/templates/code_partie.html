@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Code de la partie</title>
+</head>
+<body>
+    <h1>Partie créée avec succès !</h1>
+    <p>Le code d'accès pour rejoindre la partie est : <strong>{{ code_partie }}</strong></p>
+    <p>Les joueurs peuvent utiliser ce code pour rejoindre la partie.</p>
+    <a href="{% url 'rejoindre_partie' %}">Rejoindre une partie</a>
+</body>
+</html>
