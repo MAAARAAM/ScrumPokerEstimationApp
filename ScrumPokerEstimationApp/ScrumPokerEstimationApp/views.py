@@ -106,20 +106,34 @@ def partie(request, code):
     except Partie.DoesNotExist:
         return JsonResponse({'error': 'Partie non trouvée'}, status=404)
 
-    # Débogage des données
-    print("Backlog :", partie.backlog)  # Devrait afficher une liste JSON
-    print("Active Task Index :", partie.active_task)
-
-    # Vérification de l'index
-    if partie.active_task < len(partie.backlog):
-        tache_actuelle = partie.backlog[partie.active_task]  # On accède directement à la tâche
-        print("Tâche actuelle :", tache_actuelle)  # Affiche la tâche complète
-    else:
-        return JsonResponse({'message': 'Toutes les tâches sont terminées !'}, status=200)
-
     joueurs = partie.joueurs.all()
+    tache_actuelle = partie.backlog[partie.active_task]
+
+    # Si le compteur 'tour_joueur' n'existe pas dans la session, on l'initialise
+    if 'tour_joueur' not in request.session:
+        request.session['tour_joueur'] = 0
+
+    # Récupérer le joueur actuel
+    joueur_en_cours = joueurs[request.session['tour_joueur']]
+
+    # Afficher la tâche actuelle et le joueur en cours
     return render(request, 'partie.html', {
         'partie': partie,
-        'tache_actuelle': tache_actuelle['description'],  # Affichage de la description
+        'tache_actuelle': tache_actuelle['description'],
+        'joueur_en_cours': joueur_en_cours,  # Le joueur dont c'est le tour
         'joueurs': joueurs
     })
+
+def soumettre_vote(request, code):
+    # Récupérer la partie
+    partie = Partie.objects.get(code=code)
+    joueurs = partie.joueurs.all()
+
+    # Sauvegarder le vote ici (non montré)
+
+    # Incrémenter le compteur du joueur en cours et le réinitialiser si nécessaire
+    request.session['tour_joueur'] = (request.session['tour_joueur'] + 1) % len(joueurs)
+
+    # Rediriger vers la page de la partie pour afficher le joueur suivant
+    return redirect('partie', code=code)
+
