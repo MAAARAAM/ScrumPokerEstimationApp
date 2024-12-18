@@ -179,10 +179,11 @@ def partie(request, code):
                             'resultats': resultats
                         })
                 elif tours == 1:
-                    # Calculer la moyenne et clôturer la tâche
-                    all_votes = [int(v) for tour in tache_votes for v in tour if v.isdigit()]
-                    moyenne_vote = sum(all_votes) / len(all_votes)
-                    etat_tache['moyenne'] = moyenne_vote
+                    # Calculer la moyenne uniquement pour les votes du deuxième tour (tour 2)
+                    all_votes_tour_2 = [int(v) for v in tache_votes[tours] if v.isdigit()]
+                    if all_votes_tour_2:  # Vérifier qu'il y a des votes pour ce tour
+                        moyenne_vote = sum(all_votes_tour_2) / len(all_votes_tour_2)
+                        etat_tache['moyenne'] = moyenne_vote
 
                     # Passer à la tâche suivante
                     partie.active_task += 1
@@ -217,6 +218,7 @@ def partie(request, code):
         'votes': tache_votes,
         'tours': tours
     })
+
 
 
 def pretraiter_resultats(partie):
