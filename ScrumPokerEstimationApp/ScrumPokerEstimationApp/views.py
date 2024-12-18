@@ -105,53 +105,146 @@ def partie(request, code):
     except Partie.DoesNotExist:
         return JsonResponse({'error': 'Partie non trouvée'}, status=404)
 
-    joueurs = partie.joueurs.all()
-    tache_actuelle = partie.backlog[partie.active_task]
+    joueurs = list(partie.joueurs.all())
+    tache_actuelle_id = partie.active_task
     mode = partie.mode  # Mode de jeu
 
-    # Si le compteur 'tour_joueur' n'existe pas dans la session, on l'initialise
+    # Récupérer ou initialiser l'état de la tâche actuelle
+    if str(tache_actuelle_id) not in partie.etat_avancement:
+        partie.etat_avancement[str(tache_actuelle_id)] = {
+            'votes': [],  # Liste des votes par tour
+            'tours': 0    # Compteur de tours
+        }
+
+    etat_tache = partie.etat_avancement[str(tache_actuelle_id)]
+    tache_votes = etat_tache['votes']
+    tours = etat_tache['tours']
+    tache_actuelle = partie.backlog[tache_actuelle_id]
+
+    # Initialiser ou récupérer le joueur en cours
     if 'tour_joueur' not in request.session:
         request.session['tour_joueur'] = 0
 
-    joueur_en_cours = joueurs[request.session['tour_joueur']]  # Joueur en cours
+    joueur_en_cours = joueurs[request.session['tour_joueur']]
 
     if request.method == 'POST':
-        # Récupérer le vote du joueur
         vote = request.POST.get('vote')
 
-        # Enregistrer le vote dans la partie
+        # Enregistrer le vote
         if vote:
-            # Ajouter le vote dans la liste de votes pour la tâche actuelle
-            tache_actuelle['votes'].append(vote)
-
-        # Sauvegarder les changements dans la partie
-        partie.save()
+            # Ajouter un nouveau tour si nécessaire
+            if len(tache_votes) <= tours:
+                tache_votes.append([])  # Créer un nouveau tour
+            tache_votes[tours].append(vote)
 
         # Passer au joueur suivant
         request.session['tour_joueur'] = (request.session['tour_joueur'] + 1) % len(joueurs)
 
-        # Vérifier si tous les joueurs ont voté
-        if len(tache_actuelle['votes']) == len(joueurs):
-            if len(set(tache_actuelle['votes'])) == 1:  # Si tous les votes sont égaux
-                # Passer à la tâche suivante
-                partie.active_task += 1
-                partie.save()
+        # Si tous les joueurs ont voté dans ce tour
+        if len(tache_votes[tours]) == len(joueurs):
+            if mode == 'strict':
+                # Vérifier l'unanimité
+                if len(set(tache_votes[tours])) == 1:
+                    # Si unanimité, passer à la tâche suivante
+                    partie.active_task += 1
+                    if partie.active_task < len(partie.backlog):
+                        partie.etat_avancement[str(partie.active_task)] = {'votes': [], 'tours': 0}
+                    else:
+                        # Prétraitement pour les résultats finaux
+                        resultats = pretraiter_resultats(partie)
+                        # Fin de la partie
+                        return render(request, 'fin_partie.html', {
+                            'partie': partie,
+                            'mode': mode,
+                            'resultats': resultats
+                        })
+                else:
+                    # Recommencer un nouveau tour
+                    etat_tache['tours'] += 1
+                    request.session['tour_joueur'] = 0
 
-                # Réinitialiser les votes pour la tâche suivante
-                tache_actuelle['votes'] = []
-                partie.save()
+            elif mode == 'moyenne':
+                if tours == 0 and len(set(tache_votes[tours])) == 1:
+                    # Si unanimité au premier tour, clôturer la tâche
+                    partie.active_task += 1
+                    if partie.active_task < len(partie.backlog):
+                        partie.etat_avancement[str(partie.active_task)] = {'votes': [], 'tours': 0}
+                    else:
+                        # Prétraitement pour les résultats finaux
+                        resultats = pretraiter_resultats(partie)
+                        # Fin de la partie
+                        return render(request, 'fin_partie.html', {
+                            'partie': partie,
+                            'mode': mode,
+                            'resultats': resultats
+                        })
+                elif tours == 1:
+                    # Calculer la moyenne et clôturer la tâche
+                    all_votes = [int(v) for tour in tache_votes for v in tour if v.isdigit()]
+                    moyenne_vote = sum(all_votes) / len(all_votes)
+                    etat_tache['moyenne'] = moyenne_vote
 
-                return redirect('partie', code=code)  # Recharger la page
+                    # Passer à la tâche suivante
+                    partie.active_task += 1
+                    if partie.active_task < len(partie.backlog):
+                        partie.etat_avancement[str(partie.active_task)] = {'votes': [], 'tours': 0}
+                    else:
+                        # Prétraitement pour les résultats finaux
+                        resultats = pretraiter_resultats(partie)
+                        # Fin de la partie
+                        return render(request, 'fin_partie.html', {
+                            'partie': partie,
+                            'mode': mode,
+                            'resultats': resultats
+                        })
+                else:
+                    # Passer au deuxième tour
+                    etat_tache['tours'] += 1
+                    request.session['tour_joueur'] = 0
 
+        partie.save()
+
+        # Recharger la page pour le prochain joueur
         return redirect('partie', code=code)
 
+    # Rendre la page de la partie avec les informations actuelles
     return render(request, 'partie.html', {
         'partie': partie,
         'tache_actuelle': tache_actuelle['description'],
-        'joueur_en_cours': joueur_en_cours,  # Le joueur dont c'est le tour
+        'joueur_en_cours': joueur_en_cours,
         'joueurs': joueurs,
-        'mode': mode
+        'mode': mode,
+        'votes': tache_votes,
+        'tours': tours
     })
+
+
+def pretraiter_resultats(partie):
+    """
+    Prépare les résultats finaux pour les afficher dans le template `fin_partie.html`.
+    """
+    resultats = []
+    backlog = partie.backlog
+    etat_avancement = partie.etat_avancement
+
+    for tache_id, data in etat_avancement.items():
+        tache_details = {
+            'id': tache_id,
+            'description': backlog[int(tache_id)]['description'],
+            'votes': {idx: votes for idx, votes in enumerate(data['votes'])},
+        }
+        if partie.mode == 'moyenne' and 'moyenne' in data:
+            tache_details['resultat'] = f"Moyenne : {data['moyenne']:.2f}"
+        elif partie.mode == 'strict' and len(data['votes']) > 0 and len(set(data['votes'][-1])) == 1:
+            tache_details['resultat'] = f"Unanimité : {data['votes'][-1][0]}"
+        else:
+            tache_details['resultat'] = "Aucun consensus"
+        resultats.append(tache_details)
+    
+    return resultats
+
+
+
 
 def soumettre_vote(request, code):
     try:

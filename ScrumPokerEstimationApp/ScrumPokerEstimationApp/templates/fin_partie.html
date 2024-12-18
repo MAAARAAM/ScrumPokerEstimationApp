@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fin de la Partie</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-top: 30px;
+        }
+
+        table {
+            margin: 30px auto;
+            border-collapse: collapse;
+            width: 80%;
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            margin: 20px 10px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            background-color: #4CAF50;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            background-color: #45a049;
+        }
+
+        .btn-container {
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Résultats de la Partie {{ partie.code }}</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Tâche</th>
+                <th>Votes par tour</th>
+                <th>Résultat</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for tache in resultats %}
+                <tr>
+                    <td>{{ tache.description }}</td>
+                    <td>
+                        {% for tour, votes_tour in tache.votes.items %}
+                            Tour {{ tour|add:1 }} : {{ votes_tour|join:", " }}<br>
+                        {% endfor %}
+                    </td>
+                    <td>{{ tache.resultat }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h2>Mode de jeu : {{ mode }}</h2>
+
+    <div class="btn-container">
+        <a href="/" class="btn">Retour à l'Accueil</a>
+        <a href="/lancer-partie" class="btn">Lancer une nouvelle Partie</a>
+    </div>
+</body>
+</html>
