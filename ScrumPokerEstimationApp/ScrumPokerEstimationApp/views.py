@@ -249,8 +249,6 @@ def pretraiter_resultats(partie):
     return resultats
 
 
-
-
 def soumettre_vote(request, code):
     try:
         partie = Partie.objects.get(code=code)
