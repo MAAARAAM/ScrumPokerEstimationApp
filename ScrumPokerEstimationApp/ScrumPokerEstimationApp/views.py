@@ -130,12 +130,15 @@ def partie(request, code):
     if request.method == 'POST':
         vote = request.POST.get('vote')
 
-        # Enregistrer le vote
+        # Ajouter un vote (y compris "?", mais sans l'influencer dans les calculs)
         if vote:
-            # Ajouter un nouveau tour si nécessaire
-            if len(tache_votes) <= tours:
-                tache_votes.append([])  # Créer un nouveau tour
-            tache_votes[tours].append(vote)
+            # Enregistrer le vote "?" mais ne pas l'inclure dans les calculs
+            if vote == "?":
+                tache_votes[tours].append(vote)
+            elif vote != "?":
+                if len(tache_votes) <= tours:
+                    tache_votes.append([])  # Créer un nouveau tour si nécessaire
+                tache_votes[tours].append(vote)
 
         # Passer au joueur suivant
         request.session['tour_joueur'] = (request.session['tour_joueur'] + 1) % len(joueurs)
@@ -143,8 +146,8 @@ def partie(request, code):
         # Si tous les joueurs ont voté dans ce tour
         if len(tache_votes[tours]) == len(joueurs):
             if mode == 'strict':
-                # Vérifier l'unanimité
-                if len(set(tache_votes[tours])) == 1:
+                # Vérifier l'unanimité (exclure les votes "?" du calcul)
+                if len(set([v for v in tache_votes[tours] if v != "?"])) == 1:
                     # Si unanimité, passer à la tâche suivante
                     partie.active_task += 1
                     if partie.active_task < len(partie.backlog):
@@ -164,7 +167,7 @@ def partie(request, code):
                     request.session['tour_joueur'] = 0
 
             elif mode == 'moyenne':
-                if tours == 0 and len(set(tache_votes[tours])) == 1:
+                if tours == 0 and len(set([v for v in tache_votes[tours] if v != "?"])) == 1:
                     # Si unanimité au premier tour, clôturer la tâche
                     partie.active_task += 1
                     if partie.active_task < len(partie.backlog):
@@ -180,7 +183,7 @@ def partie(request, code):
                         })
                 elif tours == 1:
                     # Calculer la moyenne uniquement pour les votes du deuxième tour (tour 2)
-                    all_votes_tour_2 = [int(v) for v in tache_votes[tours] if v.isdigit()]
+                    all_votes_tour_2 = [int(v) for v in tache_votes[tours] if v.isdigit()]  # Ignore les "?"
                     if all_votes_tour_2:  # Vérifier qu'il y a des votes pour ce tour
                         moyenne_vote = sum(all_votes_tour_2) / len(all_votes_tour_2)
                         etat_tache['moyenne'] = moyenne_vote
