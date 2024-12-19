@@ -1,0 +1,15 @@
+digraph "Graphical Class Hierarchy"
+{
+ // LATEX_PDF_SIZE
+  bgcolor="transparent";
+  edge [fontname=Helvetica,fontsize=10,labelfontname=Helvetica,labelfontsize=10];
+  node [fontname=Helvetica,fontsize=10,shape=box,height=0.2,width=0.4];
+  rankdir="LR";
+  Node0 [id="Node000000",label="migrations.Migration",height=0.2,width=0.4,color="grey60", fillcolor="#E0E0E0", style="filled",tooltip=" "];
+  Node0 -> Node1 [id="edge1_Node000000_Node000001",dir="back",color="steelblue1",style="solid",tooltip=" "];
+  Node1 [id="Node000001",label="ScrumPokerEstimationApp.migrations.0001\l_initial.Migration",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$class_scrum_poker_estimation_app_1_1migrations_1_10001__initial_1_1_migration.html",tooltip=" "];
+  Node0 -> Node2 [id="edge2_Node000000_Node000002",dir="back",color="steelblue1",style="solid",tooltip=" "];
+  Node2 [id="Node000002",label="ScrumPokerEstimationApp.migrations.0002\l_alter_partie_code_alter_partie\l_joueurs_and_more.Migration",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$class_scrum_poker_estimation_app_1_1migrations_1_10002__alter__partie__code__alter__partie__joueurs__and__more_1_1_migration.html",tooltip=" "];
+  Node0 -> Node3 [id="edge3_Node000000_Node000003",dir="back",color="steelblue1",style="solid",tooltip=" "];
+  Node3 [id="Node000003",label="ScrumPokerEstimationApp.migrations.0003\l_partie_votes_alter_partie_code\l_alter_partie_joueurs_and_more.Migration",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$class_scrum_poker_estimation_app_1_1migrations_1_10003__partie__votes__alter__partie__code__alte884c1a76856cb502e0313ef9cb31775c.html",tooltip=" "];
+}
