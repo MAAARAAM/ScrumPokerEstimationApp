@@ -1,0 +1,4 @@
+var searchData=
+[
+  ['joueurs_0',['joueurs',['../class_scrum_poker_estimation_app_1_1models_1_1_partie.html#ae3b253d00926ac17542da9806ea4c7c5',1,'ScrumPokerEstimationApp::models::Partie']]]
+];

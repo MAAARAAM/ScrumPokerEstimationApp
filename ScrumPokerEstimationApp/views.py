@@ -1,3 +1,8 @@
+"""
+@file views.py
+@brief Contient les vues de l'application Django pour gérer les parties et les joueurs.
+"""
+
 import json
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
@@ -9,13 +14,32 @@ import random
 import string
 
 def home(request):
+
+    """
+    @brief Affiche la page d'accueil.
+    @param request Objet HTTP contenant les informations de la requête.
+    @return La page HTML de l'accueil.
+    """
+
     return render(request, 'home.html')
 
 def generer_code_unique():
-    """Génère un code unique de 5 caractères (chiffres et lettres)."""
+
+    """
+    @brief Génère un code unique de 5 caractères (lettres et chiffres).
+    @return Le code unique généré.
+    """  
+
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=5))
 
 def lancer_partie(request):
+
+    """
+    @brief Permet de lancer une nouvelle partie.
+    @param request Objet HTTP contenant les informations de la requête.
+    @return Une réponse JSON ou une redirection vers une page HTML selon le cas.
+    """
+
     if request.method == 'POST':
         mode = request.POST.get('mode')
         if not mode:
@@ -82,6 +106,13 @@ def lancer_partie(request):
 from django.shortcuts import render, redirect
 
 def rejoindre_partie(request):
+
+    """
+    @brief Permet à un joueur de rejoindre une partie existante.
+    @param request Objet HTTP contenant les informations de la requête.
+    @return Une redirection vers la partie ou un message d'erreur.
+    """
+
     if request.method == 'POST':
         code_partie = request.POST.get('code_partie')
     
@@ -100,6 +131,14 @@ def rejoindre_partie(request):
     return render(request, 'rejoindre_partie.html')
 
 def partie(request, code):
+
+    """
+    @brief Gère la logique d'une partie en cours.
+    @param request Objet HTTP contenant les informations de la requête.
+    @param code Le code unique de la partie.
+    @return La page HTML de la partie avec les informations mises à jour.
+    """
+
     try:
         partie = Partie.objects.get(code=code)
     except Partie.DoesNotExist:
@@ -225,9 +264,13 @@ def partie(request, code):
 
 
 def pretraiter_resultats(partie):
+
     """
-    Prépare les résultats finaux pour les afficher dans le template `fin_partie.html`.
+    @brief Prépare les résultats finaux pour une partie terminée.
+    @param partie Instance de la classe Partie à traiter.
+    @return Une liste des résultats des tâches.
     """
+
     resultats = []
     backlog = partie.backlog
     etat_avancement = partie.etat_avancement
@@ -250,6 +293,14 @@ def pretraiter_resultats(partie):
 
 
 def soumettre_vote(request, code):
+
+    """
+    @brief Permet aux joueurs de soumettre leurs votes pour une tâche.
+    @param request Objet HTTP contenant les informations de la requête.
+    @param code Le code unique de la partie.
+    @return Une redirection vers la page de la partie après traitement du vote.
+    """
+    
     try:
         partie = Partie.objects.get(code=code)
     except Partie.DoesNotExist:
