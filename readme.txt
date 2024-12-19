@@ -35,3 +35,8 @@ Accédez à l'application
 Ouvrez votre navigateur et allez à l'URL suivante :
 http://127.0.0.1:8000/
 L'application devrait maintenant être en cours d'exécution en local.
+
+requirements
+Django==5.1.4
+pytest==8.3.4
+pytest-django==4.9.0
