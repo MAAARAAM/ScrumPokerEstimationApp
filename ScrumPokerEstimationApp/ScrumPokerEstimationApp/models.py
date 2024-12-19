@@ -37,6 +37,7 @@ class Partie(models.Model):
     votes = models.JSONField(default=dict)
 
     def save(self, *args, **kwargs):
+        
         """
         @brief Enregistre l'état de la partie tout en initialisant les votes pour chaque tâche du backlog.
         """
