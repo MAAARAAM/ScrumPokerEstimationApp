@@ -106,7 +106,6 @@ def lancer_partie(request):
 from django.shortcuts import render, redirect
 
 def rejoindre_partie(request):
-
     """
     @brief Permet à un joueur de rejoindre une partie existante.
     @param request Objet HTTP contenant les informations de la requête.
@@ -122,6 +121,10 @@ def rejoindre_partie(request):
         try:
             # Récupérer la partie correspondant au code
             partie = Partie.objects.get(code=code_partie)
+            
+            # Vérifier si l'état de la partie est 'terminée'
+            if partie.etat == 'terminee':
+                return render(request, 'rejoindre_partie.html', {'error': 'Cette partie est déjà terminée'})
         except Partie.DoesNotExist:
             return render(request, 'rejoindre_partie.html', {'error': 'Partie non trouvée'})
 
@@ -129,6 +132,7 @@ def rejoindre_partie(request):
         return redirect('partie', code=code_partie)
 
     return render(request, 'rejoindre_partie.html')
+
 
 def partie(request, code):
     """
@@ -191,15 +195,13 @@ def partie(request, code):
         # Si tous les joueurs ont voté pour ce tour
         if len(tache_votes[tours]) == len(joueurs):
             if mode == 'strict':
-                # Vérifier si tous les votes sont identiques (exclure les "?")
-                votes_effectifs = [v for v in tache_votes[tours] if v != "?"]
-                if len(set(votes_effectifs)) == 1:
-                    # Unanimité atteinte, passer à la tâche suivante
+                # Vérifier si tous les votes sont "?"" et gérer le mode strict
+                if all(v == "?" for v in tache_votes[tours]):
+                    etat_tache['resultat'] = "Indécis"
                     partie.active_task += 1
                     if partie.active_task < len(partie.backlog):
                         partie.etat_avancement[str(partie.active_task)] = {'votes': [], 'tours': 0}
                     else:
-                        # Toutes les tâches sont terminées
                         partie.etat = 'terminee'
                         resultats = pretraiter_resultats(partie)
                         partie.save()
@@ -209,31 +211,68 @@ def partie(request, code):
                             'resultats': resultats
                         })
                 else:
-                    # Pas d'unanimité, démarrer un nouveau tour
-                    etat_tache['tours'] += 1
-                    request.session['tour_joueur'] = 0
+                    votes_effectifs = [v for v in tache_votes[tours] if v != "?"]
+                    if len(set(votes_effectifs)) == 1:
+                        # Unanimité atteinte
+                        partie.active_task += 1
+                        if partie.active_task < len(partie.backlog):
+                            partie.etat_avancement[str(partie.active_task)] = {'votes': [], 'tours': 0}
+                        else:
+                            partie.etat = 'terminee'
+                            resultats = pretraiter_resultats(partie)
+                            partie.save()
+                            return render(request, 'fin_partie.html', {
+                                'partie': partie,
+                                'mode': mode,
+                                'resultats': resultats
+                            })
+                    else:
+                        # Pas d'unanimité, démarrer un nouveau tour
+                        etat_tache['tours'] += 1
+                        request.session['tour_joueur'] = 0
 
             elif mode == 'moyenne':
-                # Calculer la moyenne des votes (exclure les "?")
-                votes_numeriques = [int(v) for v in tache_votes[tours] if v.isdigit()]
-                if votes_numeriques:
-                    moyenne_vote = sum(votes_numeriques) / len(votes_numeriques)
-                    etat_tache['moyenne'] = moyenne_vote
-
-                # Passer à la tâche suivante
-                partie.active_task += 1
-                if partie.active_task < len(partie.backlog):
-                    partie.etat_avancement[str(partie.active_task)] = {'votes': [], 'tours': 0}
+                # Vérifier si c'est le premier tour et tous les joueurs n'ont pas voté de manière identique
+                if tours == 0:  # Premier tour
+                    if len(set(tache_votes[tours])) == 1:
+                        # Unanimité atteinte
+                        etat_tache['resultat'] = tache_votes[tours][0]  # Mettre le résultat du vote unique
+                        partie.active_task += 1
+                        if partie.active_task < len(partie.backlog):
+                            partie.etat_avancement[str(partie.active_task)] = {'votes': [], 'tours': 0}
+                        else:
+                            partie.etat = 'terminee'
+                            resultats = pretraiter_resultats(partie)
+                            partie.save()
+                            return render(request, 'fin_partie.html', {
+                                'partie': partie,
+                                'mode': mode,
+                                'resultats': resultats
+                            })
+                    else:
+                        # Pas d'unanimité, on passe à un tour de moyenne
+                        etat_tache['tours'] += 1
+                        request.session['tour_joueur'] = 0
                 else:
-                    # Toutes les tâches sont terminées
-                    partie.etat = 'terminee'
-                    resultats = pretraiter_resultats(partie)
-                    partie.save()
-                    return render(request, 'fin_partie.html', {
-                        'partie': partie,
-                        'mode': mode,
-                        'resultats': resultats
-                    })
+                    # Calculer la moyenne des votes (exclure les "?")
+                    votes_numeriques = [int(v) for v in tache_votes[tours] if v.isdigit()]
+                    if votes_numeriques:
+                        moyenne_vote = sum(votes_numeriques) / len(votes_numeriques)
+                        etat_tache['moyenne'] = moyenne_vote
+
+                    # Passer à la tâche suivante
+                    partie.active_task += 1
+                    if partie.active_task < len(partie.backlog):
+                        partie.etat_avancement[str(partie.active_task)] = {'votes': [], 'tours': 0}
+                    else:
+                        partie.etat = 'terminee'
+                        resultats = pretraiter_resultats(partie)
+                        partie.save()
+                        return render(request, 'fin_partie.html', {
+                            'partie': partie,
+                            'mode': mode,
+                            'resultats': resultats
+                        })
 
         partie.save()
 
@@ -252,16 +291,12 @@ def partie(request, code):
     })
 
 
-
-
 def pretraiter_resultats(partie):
-
     """
     @brief Prépare les résultats finaux pour une partie terminée.
     @param partie Instance de la classe Partie à traiter.
     @return Une liste des résultats des tâches.
     """
-
     resultats = []
     backlog = partie.backlog
     etat_avancement = partie.etat_avancement
@@ -272,12 +307,17 @@ def pretraiter_resultats(partie):
             'description': backlog[int(tache_id)]['description'],
             'votes': {idx: votes for idx, votes in enumerate(data['votes'])},
         }
-        if partie.mode == 'moyenne' and 'moyenne' in data:
+        
+        # Cas où tous les votes sont "?"
+        if len(data['votes']) > 0 and all(v == "?" for v in data['votes'][-1]):
+            tache_details['resultat'] = "Indécis"
+        elif partie.mode == 'moyenne' and 'moyenne' in data:
             tache_details['resultat'] = f"Moyenne : {data['moyenne']:.2f}"
         elif partie.mode == 'strict' and len(data['votes']) > 0 and len(set(data['votes'][-1])) == 1:
             tache_details['resultat'] = f"Unanimité : {data['votes'][-1][0]}"
         else:
             tache_details['resultat'] = "Aucun consensus"
+        
         resultats.append(tache_details)
     
     return resultats
