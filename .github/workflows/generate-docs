@@ -1,0 +1,34 @@
+name: Generate Doxygen Documentation
+
+on:
+  push:
+    branches:
+      - main  # Spécifie la branche où déclencher le workflow
+  pull_request:
+    branches:
+      - main  # Lors d'une PR vers la branche 'main'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest  # Vous pouvez aussi choisir 'windows-latest' ou 'macos-latest'
+
+    steps:
+      # Étape 1 : Checkout du code
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Étape 2 : Installer Doxygen
+      - name: Install Doxygen
+        run: sudo apt-get update && sudo apt-get install doxygen
+
+      # Étape 3 : Exécuter Doxygen
+      - name: Generate Documentation
+        run: doxygen Doxyfile  # Utilisez votre Doxyfile pour générer la documentation
+
+      # Étape 4 : Déployer la documentation sur GitHub Pages
+      - name: Deploy docs to GitHub Pages
+        if: success()
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          personal_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs/html  # Répertoire où la documentation est générée par Doxygen
