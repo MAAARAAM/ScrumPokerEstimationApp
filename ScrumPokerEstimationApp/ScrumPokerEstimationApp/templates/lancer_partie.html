@@ -16,7 +16,7 @@
         
         <!-- Nombre de joueurs -->
         <label for="nb_joueurs">Nombre de joueurs :</label>
-        <input type="number" id="nb_joueurs" name="nb_joueurs" min="1" max="10" required><br>
+        <input type="number" id="nb_joueurs" name="nb_joueurs" min="2" max="10" value='2' required><br>
 
         <!-- Pseudos des joueurs -->
         <div id="player-names"></div>
@@ -30,7 +30,7 @@
 
         <!-- Nombre de tâches pour le backlog -->
         <label for="nb_taches">Nombre de tâches par backlog :</label>
-        <input type="number" id="nb_taches" name="nb_taches" min="1" max="10" required><br>
+        <input type="number" id="nb_taches" name="nb_taches" min="1" max="10" value='1' required><br>
 
         <!-- Intitulés des tâches -->
         <div id="task-titles"></div>
@@ -39,52 +39,49 @@
     </form>
 
     <script>
-        let playerCount = 1;
-        const playerNamesDiv = document.getElementById('player-names');
-        const taskTitlesDiv = document.getElementById('task-titles');
-        const maxPlayers = 10;
+        document.addEventListener('DOMContentLoaded', function () {
+    const nbJoueurs = parseInt(document.getElementById('nb_joueurs').value);
+    const nbTaches = parseInt(document.getElementById('nb_taches').value);
 
-        // Ajoute un champ de pseudo pour chaque joueur
-        document.getElementById('nb_joueurs').addEventListener('change', function() {
-            const nbJoueurs = parseInt(this.value);
-            playerNamesDiv.innerHTML = ''; // Clear previous inputs
-            for (let i = 1; i <= nbJoueurs; i++) {
-                const label = document.createElement('label');
-                label.setAttribute('for', 'player_' + i);
-                label.innerHTML = 'Pseudo Joueur ' + i + ' : ';
-                
-                const input = document.createElement('input');
-                input.type = 'text';
-                input.id = 'player_' + i;
-                input.name = 'player_' + i;
-                input.required = true;
+    const playerNamesDiv = document.getElementById('player-names');
+    const taskTitlesDiv = document.getElementById('task-titles');
 
-                playerNamesDiv.appendChild(label);
-                playerNamesDiv.appendChild(input);
-                playerNamesDiv.appendChild(document.createElement('br'));
-            }
-        });
+    // Générer les champs pour les pseudos des joueurs
+    playerNamesDiv.innerHTML = ''; // Clear existing content (if any)
+    for (let i = 1; i <= nbJoueurs; i++) {
+        const label = document.createElement('label');
+        label.setAttribute('for', 'player_' + i);
+        label.innerHTML = 'Pseudo Joueur ' + i + ' : ';
+        
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.id = 'player_' + i;
+        input.name = 'player_' + i;
+        input.required = true;
 
-        // Ajoute des champs pour les intitulés des tâches
-        document.getElementById('nb_taches').addEventListener('change', function() {
-            const nbTaches = parseInt(this.value);
-            taskTitlesDiv.innerHTML = ''; // Clear previous task inputs
-            for (let i = 1; i <= nbTaches; i++) {
-                const label = document.createElement('label');
-                label.setAttribute('for', 'tache_' + i);
-                label.innerHTML = 'Intitulé de la tâche ' + i + ' : ';
-                
-                const input = document.createElement('input');
-                input.type = 'text';
-                input.id = 'tache_' + i;
-                input.name = 'tache_' + i;
-                input.required = true;
+        playerNamesDiv.appendChild(label);
+        playerNamesDiv.appendChild(input);
+        playerNamesDiv.appendChild(document.createElement('br'));
+    }
 
-                taskTitlesDiv.appendChild(label);
-                taskTitlesDiv.appendChild(input);
-                taskTitlesDiv.appendChild(document.createElement('br'));
-            }
-        });
+    // Générer les champs pour les intitulés des tâches
+    taskTitlesDiv.innerHTML = ''; // Clear existing content (if any)
+    for (let i = 1; i <= nbTaches; i++) {
+        const label = document.createElement('label');
+        label.setAttribute('for', 'tache_' + i);
+        label.innerHTML = 'Intitulé de la tâche ' + i + ' : ';
+        
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.id = 'tache_' + i;
+        input.name = 'tache_' + i;
+        input.required = true;
+
+        taskTitlesDiv.appendChild(label);
+        taskTitlesDiv.appendChild(input);
+        taskTitlesDiv.appendChild(document.createElement('br'));
+    }
+});
     </script>
 </body>
 </html>

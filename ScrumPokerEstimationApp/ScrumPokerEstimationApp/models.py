@@ -14,7 +14,6 @@ class Joueur(models.Model):
     """
     pseudo = models.CharField(max_length=100)
     vote = models.CharField(max_length=20, blank=True, null=True)
-    
 
 class Partie(models.Model):
     """
@@ -27,6 +26,7 @@ class Partie(models.Model):
     @var etat_avancement Les résultats des votes par tâche.
     @var joueurs Les joueurs associés à cette partie.
     @var votes Les votes des joueurs pour chaque tâche.
+    @var etat L'état actuel de la partie (par défaut 'en_cours').
     """
     code = models.CharField(max_length=10, unique=True)
     mode = models.CharField(max_length=10, choices=[('strict', 'Strict'), ('moyenne', 'Moyenne')])
@@ -35,9 +35,18 @@ class Partie(models.Model):
     etat_avancement = models.JSONField(default=dict)
     joueurs = models.ManyToManyField(Joueur)
     votes = models.JSONField(default=dict)
+    etat = models.CharField(
+        max_length=20,
+        default='en_cours',
+        choices=[
+            ('en_cours', 'En cours'),
+            ('terminee', 'Terminée'),
+            ('annulee', 'Annulée')
+        ],
+        help_text="L'état actuel de la partie"
+    )
 
     def save(self, *args, **kwargs):
-        
         """
         @brief Enregistre l'état de la partie tout en initialisant les votes pour chaque tâche du backlog.
         """
