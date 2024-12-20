@@ -24,13 +24,17 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r ScrumPokerEstimationApp/requirements.txt  
+        pip install django pytest pytest-django  # Installer les dépendances nécessaires
 
-    - name: Set Django settings module
+    - name: Set environment variables
       run: |
-        echo "DJANGO_SETTINGS_MODULE=ScrumPokerEstimationApp.ScrumPokerEstimationApp.settings" >> $GITHUB_ENV 
+        echo "DJANGO_SETTINGS_MODULE=ScrumPokerEstimationApp.ScrumPokerEstimationApp.settings" >> $GITHUB_ENV
+        echo "PYTHONPATH=$PYTHONPATH:$(pwd)/ScrumPokerEstimationApp" >> $GITHUB_ENV
+
+    - name: Apply migrations
+      run: |
+        python ScrumPokerEstimationApp/manage.py migrate
 
     - name: Run tests
       run: |
-        python ScrumPokerEstimationApp/manage.py migrate
         pytest -v
