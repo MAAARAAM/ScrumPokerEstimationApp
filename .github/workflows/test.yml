@@ -29,5 +29,5 @@ jobs:
 
     - name: Run tests
       run: |
-        python manage.py migrate
+        python ScrumPokerEstimationApp/manage.py migrate
         pytest -v
