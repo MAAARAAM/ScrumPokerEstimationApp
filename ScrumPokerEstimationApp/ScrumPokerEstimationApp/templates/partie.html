@@ -6,17 +6,16 @@
     <title>Partie - {{ partie.code }}</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'styles/partie.css' %}">
-   
 </head>
 <body>
-    <h1>Partie {{ partie.code }}</h1>
+    <h1>Partie <span class="variable">{{ partie.code }}</span></h1>
 
     <div class="container">
         <div class="joueurs-container">
             <h2>Joueurs</h2>
             <ul>
                 {% for joueur in partie.joueurs.all %}
-                    <li>{{ joueur.pseudo }}</li>
+                    <li><span class="variable">{{ joueur.pseudo }}</span></li>
                 {% endfor %}
             </ul>
         </div>
@@ -25,72 +24,70 @@
             <h2>Tâches</h2>
             <ul>
                 {% for tache in partie.backlog %}
-                    <li>{{ tache.description }}</li>
+                    <li><span class="variable">{{ tache.description }}</span></li>
                 {% endfor %}
             </ul>
         </div>
     </div>
 
-    <h3>Votes :</h3>
-
-    <h3>Le vote est pour la tâche </h3>
+    <h3>Le vote est pour la tâche</h3>
 
     <p id="tache-actuelle">
         {% if tache_actuelle %}
-            {{ tache_actuelle }}
+            <span class="variable">{{ tache_actuelle }}</span>
         {% else %}
             Aucune tâche actuelle pour le moment.
         {% endif %}
     </p>
 
-    <h4>C'est le tour de {{ joueur_en_cours.pseudo }} de voter</h4>
+    <h4>C'est le tour de <span class="variable">{{ joueur_en_cours.pseudo }}</span> de voter</h4>
 
     <h3>Votez pour une carte :</h3>
-<form method="POST" id="voteForm">
-    {% csrf_token %}
-    <div class="vote-cards">
-        <div class="vote-card" data-value="0">
-            <img src="{% static 'cartes/cartes_0.svg' %}" alt="Carte 0">
+    <form method="POST" id="voteForm">
+        {% csrf_token %}
+        <div class="vote-cards">
+            <div class="vote-card" data-value="0">
+                <img src="{% static 'cartes/cartes_0.svg' %}" alt="Carte 0">
+            </div>
+            <div class="vote-card" data-value="1">
+                <img src="{% static 'cartes/cartes_1.svg' %}" alt="Carte 1">
+            </div>
+            <div class="vote-card" data-value="2">
+                <img src="{% static 'cartes/cartes_2.svg' %}" alt="Carte 2">
+            </div>
+            <div class="vote-card" data-value="3">
+                <img src="{% static 'cartes/cartes_3.svg' %}" alt="Carte 3">
+            </div>
+            <div class="vote-card" data-value="5">
+                <img src="{% static 'cartes/cartes_5.svg' %}" alt="Carte 5">
+            </div>
+            <div class="vote-card" data-value="8">
+                <img src="{% static 'cartes/cartes_8.svg' %}" alt="Carte 8">
+            </div>
+            <div class="vote-card" data-value="13">
+                <img src="{% static 'cartes/cartes_13.svg' %}" alt="Carte 13">
+            </div>
+            <div class="vote-card" data-value="20">
+                <img src="{% static 'cartes/cartes_20.svg' %}" alt="Carte 20">
+            </div>
+            <div class="vote-card" data-value="40">
+                <img src="{% static 'cartes/cartes_40.svg' %}" alt="Carte 40">
+            </div>
+            <div class="vote-card" data-value="100">
+                <img src="{% static 'cartes/cartes_100.svg' %}" alt="Carte 100">
+            </div>
+            <div class="vote-card" data-value="Café">
+                <img src="{% static 'cartes/cartes_cafe.svg' %}" alt="Carte Café">
+            </div>
+            <div class="vote-card" data-value="?">
+                <img src="{% static 'cartes/cartes_interro.svg' %}" alt="Carte ?">
+            </div>
         </div>
-        <div class="vote-card" data-value="1">
-            <img src="{% static 'cartes/cartes_1.svg' %}" alt="Carte 1">
-        </div>
-        <div class="vote-card" data-value="2">
-            <img src="{% static 'cartes/cartes_2.svg' %}" alt="Carte 2">
-        </div>
-        <div class="vote-card" data-value="3">
-            <img src="{% static 'cartes/cartes_3.svg' %}" alt="Carte 3">
-        </div>
-        <div class="vote-card" data-value="5">
-            <img src="{% static 'cartes/cartes_5.svg' %}" alt="Carte 5">
-        </div>
-        <div class="vote-card" data-value="8">
-            <img src="{% static 'cartes/cartes_8.svg' %}" alt="Carte 8">
-        </div>
-        <div class="vote-card" data-value="13">
-            <img src="{% static 'cartes/cartes_13.svg' %}" alt="Carte 13">
-        </div>
-        <div class="vote-card" data-value="20">
-            <img src="{% static 'cartes/cartes_20.svg' %}" alt="Carte 20">
-        </div>
-        <div class="vote-card" data-value="40">
-            <img src="{% static 'cartes/cartes_40.svg' %}" alt="Carte 40">
-        </div>
-        <div class="vote-card" data-value="100">
-            <img src="{% static 'cartes/cartes_100.svg' %}" alt="Carte 100">
-        </div>
-        <div class="vote-card" data-value="Café">
-            <img src="{% static 'cartes/cartes_cafe.svg' %}" alt="Carte Café">
-        </div>
-        <div class="vote-card" data-value="?">
-            <img src="{% static 'cartes/cartes_interro.svg' %}" alt="Carte ?">
-        </div>
-    </div>
 
-    <input type="hidden" id="voteInput" name="vote" required>
+        <input type="hidden" id="voteInput" name="vote" required>
 
-    <button type="submit">Voter</button>
-</form>
+        <button type="submit">Voter</button>
+    </form>
 
     <script>
         const voteCards = document.querySelectorAll('.vote-card');

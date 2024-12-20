@@ -10,40 +10,101 @@ body {
     padding: 20px;
     min-height: 100vh;
     gap: 10px;
+    color: #666; /* Gris clair pour le texte statique */
 }
 
 /* Disposition générale des sections */
 .container {
     display: flex;
     justify-content: space-between;
+    gap: 30px; /* Espacement entre les sections joueurs et tâches */
+    flex-wrap: wrap; /* Permet de rendre l'affichage responsive */
     width: 100%;
     max-width: 1200px;
 }
 
-/* Liste des tâches (à gauche) */
-.taches-container {
-    flex: 1;
-    text-align: left;
-    padding-right: 20px;
-}
-
-/* Liste des joueurs (à droite) */
+/* Liste des joueurs (à gauche) */
 .joueurs-container {
     flex: 1;
-    text-align: left;
-    padding-left: 20px;
+    min-width: 280px; /* Minimum largeur pour les sections */
+    background-color: #f4f7fc; /* Fond léger pour une apparence propre */
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Ombre légère pour donner de la profondeur */
+    transition: box-shadow 0.3s ease-in-out;
 }
 
-/* Liste des tâches et joueurs */
-ul {
+.joueurs-container:hover {
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2); /* Ombre plus intense au survol */
+}
+
+.joueurs-container h2 {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: #007bff;
+}
+
+.joueurs-container ul {
     list-style-type: none;
     padding: 0;
-    margin: 10px 0;
+    margin: 0;
 }
 
-/* Titre des sections */
-h2, h3 {
-    margin: 10px 0;
+.joueurs-container li {
+    background-color: #fff;
+    padding: 12px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    transition: background-color 0.3s, transform 0.2s;
+    cursor: pointer;
+}
+
+.joueurs-container li:hover {
+    background-color: #e0f7ff; /* Fond bleu clair au survol */
+    transform: scale(1.05); /* Légère mise en avant au survol */
+}
+
+/* Liste des tâches (à droite) */
+.taches-container {
+    flex: 1;
+    min-width: 280px;
+    background-color: #f4f7fc;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease-in-out;
+}
+
+.taches-container:hover {
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+}
+
+.taches-container h2 {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: #28a745;
+}
+
+.taches-container ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.taches-container li {
+    background-color: #fff;
+    padding: 12px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    transition: background-color 0.3s, transform 0.2s;
+    cursor: pointer;
+}
+
+.taches-container li:hover {
+    background-color: #d4edda; /* Fond vert clair au survol */
+    transform: scale(1.05);
 }
 
 /* Formulaire de vote */
@@ -60,19 +121,72 @@ form {
 /* Disposition des cartes de vote */
 .vote-cards {
     display: grid;
-    grid-template-columns: repeat(5, 1fr); /* 5 cartes par ligne */
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); /* Utilisation de la largeur minimale pour chaque carte, ajustable */
     gap: 10px;
     justify-items: center;
+    width: 100%; /* S'assurer que les cartes prennent toute la largeur disponible */
 }
 
+/* Ajustement de la taille des cartes */
 .vote-card img {
-    width: 100px;
-    height: 100px;
+    width: 100%; /* Prend toute la largeur de son conteneur */
+    height: auto; /* Garde les proportions de l'image */
+    max-width: 150px;  /* Taille maximale de la carte */
+    max-height: 150px; /* Taille maximale de la carte */
     object-fit: contain;
     cursor: pointer;
     transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out, filter 0.2s ease-in-out, background-color 0.2s ease-in-out;
     background-color: transparent;
     border-radius: 8px;
+}
+
+/* Couleurs différentes pour chaque carte en fonction de la valeur de data-value */
+.vote-card[data-value="0"] img {
+    background-color: #FFDDC1; /* Rose clair */
+}
+
+.vote-card[data-value="1"] img {
+    background-color: #FFABAB; /* Rose foncé */
+}
+
+.vote-card[data-value="2"] img {
+    background-color: #FFC3A0; /* Orange clair */
+}
+
+.vote-card[data-value="3"] img {
+    background-color: #FF9A8B; /* Orange foncé */
+}
+
+.vote-card[data-value="5"] img {
+    background-color: #FFD700; /* Jaune */
+}
+
+.vote-card[data-value="8"] img {
+    background-color: #98FB98; /* Vert clair */
+}
+
+.vote-card[data-value="13"] img {
+    background-color: #20B2AA; /* Vert foncé */
+}
+
+.vote-card[data-value="20"] img {
+    background-color: #ADD8E6; /* Bleu clair */
+}
+
+.vote-card[data-value="40"] img {
+    background-color: #4682B4; /* Bleu foncé */
+}
+
+.vote-card[data-value="100"] img {
+    background-color: #8A2BE2; /* Violet */
+}
+
+.vote-card[data-value="Café"] img {
+    background-color: #D2691E; /* Marron */
+}
+
+.vote-card[data-value="?"] img {
+    background-color: #808080; /* Gris */
 }
 
 /* Effet hover sur les cartes */
@@ -115,5 +229,16 @@ button:active {
 
 /* CSS pour mettre en valeur l'image sélectionnée */
 .vote-card.selected img {
-    border: 3px solid #0056b3; /* Bordure verte pour l'image sélectionnée */
+    border: 3px solid #0056b3; /* Bordure bleue pour l'image sélectionnée */
+}
+
+/* Style spécifique pour les variables */
+.variable {
+    color: black;
+    font-size: 1.2em;  /* Augmenter la taille des variables */
+}
+
+/* Texte statique en gris */
+body {
+    color: #666; /* Gris clair pour le texte statique */
 }
