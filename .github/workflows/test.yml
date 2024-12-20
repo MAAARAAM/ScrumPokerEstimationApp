@@ -21,17 +21,16 @@ jobs:
       with:
         python-version: '3.10'
 
-    - name: Create virtual environment
+    - name: Install dependencies
       run: |
-        python -m venv venv
-        .\venv\Scripts\activate  # Pour Windows
-        pip install --upgrade pip
-        pip install -r ScrumPokerEstimationApp/requirements.txt
-        pip install django  # Installer Django
-        pip install pytest pytest-django
+        python -m pip install --upgrade pip
+        pip install -r ScrumPokerEstimationApp/requirements.txt  
+
+    - name: Set Django settings module
+      run: |
+        echo "DJANGO_SETTINGS_MODULE=ScrumPokerEstimationApp.ScrumPokerEstimationApp.settings" >> $GITHUB_ENV 
 
     - name: Run tests
       run: |
-        .\venv\Scripts\activate  # Activer l'environnement virtuel pour Windows
         python ScrumPokerEstimationApp/manage.py migrate
         pytest -v
