@@ -23,7 +23,7 @@ jobs:
 
       # Étape 3 : Exécuter Doxygen
       - name: Generate Documentation
-        run: doxygen Doxyfile  # Exécutez Doxygen en utilisant le fichier Doxyfile du repository
+        run: doxygen ScrumPokerEstimationApp/conf/Doxyfile  # Exécutez Doxygen en utilisant le fichier Doxyfile du repository
 
       # Étape 4 : (Optionnel) Héberger la documentation générée sur GitHub Pages
       - name: Deploy docs to GitHub Pages
