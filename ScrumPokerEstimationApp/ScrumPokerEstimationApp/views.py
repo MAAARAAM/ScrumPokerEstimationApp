@@ -23,6 +23,12 @@ def home(request):
 
     return render(request, 'home.html')
 
+
+def partie_suspendue(request, code):
+    # Logique pour la vue partie_suspendue
+    return render(request, 'partie_suspendue.html', {'code': code})
+
+
 def generer_code_unique():
 
     """
@@ -194,8 +200,13 @@ def partie(request, code):
 
         # Si tous les joueurs ont voté pour ce tour
         if len(tache_votes[tours]) == len(joueurs):
+            # Vérifier si tous les votes sont "Café"
+            if all(vote == "Café" for vote in tache_votes[tours]):
+                # Si tous les votes sont "Café", afficher le popup de suspension de la partie
+                return render(request, 'partie_suspendue.html', {'partie': partie})
+
             if mode == 'strict':
-                # Vérifier si tous les votes sont "?"" et gérer le mode strict
+                # Vérifier si tous les votes sont "?" et gérer le mode strict
                 if all(v == "?" for v in tache_votes[tours]):
                     etat_tache['resultat'] = "Indécis"
                     partie.active_task += 1

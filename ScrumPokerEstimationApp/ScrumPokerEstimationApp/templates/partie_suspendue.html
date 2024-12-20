@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Partie Suspendue</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'styles/suspendue.css' %}">
+</head>
+<body>
+    <div class="popup">
+        <h1>{{ message }}</h1>
+        <p>La partie a été suspendue car l'unanimité a été atteinte sur le vote 'Café'. Vous pouvez quitter la partie ou revenir plus tard.
+            Prenez le temps de discussion nécessaire, et si vous voulez rjoindre la partie, tapez le même mode d'accès sur rubrique "Rejoindre une partie"! 
+        </p>
+        <a href="{% url 'home' %}" class="btn">Quitter la Partie</a>
+    </div>
+</body>
+</html>
