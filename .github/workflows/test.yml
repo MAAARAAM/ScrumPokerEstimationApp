@@ -28,16 +28,8 @@ jobs:
 
     - name: Set environment variables
       run: |
-        echo "DJANGO_SETTINGS_MODULE=ScrumPokerEstimationApp.ScrumPokerEstimationApp.settings" >> $env:GITHUB_ENV
-        $pythonPath = "$(Get-Location)/ScrumPokerEstimationApp"
-        echo "PYTHONPATH=$($env:PYTHONPATH);$pythonPath" >> $env:GITHUB_ENV
-        Write-Host "PYTHONPATH set to: $pythonPath"
-      shell: pwsh
-
-    - name: Debug environment variables
-      run: |
-        echo "DJANGO_SETTINGS_MODULE=$env:DJANGO_SETTINGS_MODULE"
-        echo "PYTHONPATH=$env:PYTHONPATH"
+        echo "DJANGO_SETTINGS_MODULE=ScrumPokerEstimationApp.settings" >> $env:GITHUB_ENV
+        echo "PYTHONPATH=$($env:PYTHONPATH);$(Get-Location)" >> $env:GITHUB_ENV
       shell: pwsh
 
     - name: Apply migrations
